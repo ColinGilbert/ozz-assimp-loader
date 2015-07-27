@@ -123,35 +123,6 @@ class loader
 					lemon::ListDigraph::Node p = nodes.find(parent)->second;
 					lemon::ListDigraph::Node c = nodes.find(child)->second;
 					_graph.addArc(p, c);
-					/*
-					   std::string parent_name = std::string(parent->mName.C_Str());
-					   std::string child_name = std::string(child->mName.C_Str());
-
-					   auto parent_it = names_map.find(parent_name); //std::string(parent->mName.C_Str()));
-					   auto child_it = names_map.find(child_name); //std::string(child->mName.C_Str()));
-
-					   if (child_it == names_map.end())
-					   {
-					   lemon::ListDigraph::Node child_node = add(child);
-					//std::string parent_name;
-					lemon::ListDigraph::Node parent_node;
-					//std::string child_name = _name[child_node];
-					names_map.insert(std::make_pair(child_name, child_node));
-
-					if (parent_it == names_map.end())
-					{
-					parent_node = add(parent);
-					//parent_name = _name[parent_node];
-					names_map.insert(std::make_pair(parent_name, parent_node));
-					}
-					else
-					{
-					parent_node = parent_it->second;
-					}
-					std::cout << "Adding arc between parent " << parent_name << " and child " << child_name << std::endl;
-					_graph.addArc(parent_node, child_node);
-					}
-					*/
 				}
 
 				lemon::ListDigraph::Node add(aiNode* assimp_node)
@@ -244,31 +215,7 @@ class loader
 			std::vector<uint32_t> indices;
 			std::vector<std::string> bone_names;
 		};
-		/*
-		// Returns empty string if nothing found.
-		std::string find_root_bone_name(const aiScene* scene, std::vector<std::string>& bone_names)
-		{
-		aiNode* scene_root = scene->mRootNode;
-		std::string root_name;
-
-		for (std::string s : bone_names)
-		{
-		aiNode* current_node = scene_root->FindNode(s.c_str());
-		aiNode* parent_node = current_node->mParent;
-
-		if (parent_node == NULL)
-		{
-		return std::string(current_node->mName.C_Str());
-		}
-		if (std::find(bone_names.begin(), bone_names.end(), parent_node->mName.C_Str()) == bone_names.end()) 
-		{
-		return std::string(current_node->mName.C_Str()); 
-		}
-		}
-
-		return "";
-		}
-		*/
+		
 		bool load(const aiScene* scene, const std::string& name)
 		{
 			if (!scene)
@@ -384,25 +331,12 @@ class loader
 				}
 				meshes.push_back(temp_mesh);
 			}
-			/*
-			   std::string root_bone_name = find_root_bone_name(scene, scene_bone_names);
-
-			   if (root_bone_name == "")
-			   {
-			   std::cout << "Root bone name is empty - Should not happen." << std::endl;
-			   }
-			   else
-			   {
-			   std::cout << "Root bone name " << root_bone_name << std::endl;
-			   }
-
-			   aiNode* root_bone_node = scene_root->FindNode(root_bone_name.c_str());
-			   */
+			
 			loader::hierarchy bone_hierarchy;
 
 			bone_hierarchy.init(scene, scene_bone_names);//root_bone_node);
 
-			//		bone_hierarchy.print_info();
+			// bone_hierarchy.print_info();
 
 			ozz::animation::offline::RawSkeleton raw_skel = bone_hierarchy.make_raw_skeleton();
 
