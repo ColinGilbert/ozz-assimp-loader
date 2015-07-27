@@ -9,9 +9,10 @@
 #include <assimp/postprocess.h>
 #include <lemon/list_graph.h>
 
-#include "ozz/animation/offline/raw_skeleton.h"
-#include "ozz/animation/offline/skeleton_builder.h"
-#include "ozz/animation/runtime/skeleton.h"
+#include <ozz/animation/offline/raw_skeleton.h>
+#include <ozz/animation/offline/skeleton_builder.h>
+#include <ozz/animation/runtime/skeleton.h>
+
 
 #include "format.h"
 
@@ -37,16 +38,21 @@ class loader
 
 				ozz::animation::offline::RawSkeleton make_raw_skeleton()
 				{
-
-					// std::cout << "About to create skeleton from root joint" << std::endl;
-					
 					std::vector<lemon::ListDigraph::Node> roots = find_roots();
-					
+				
+					std::cout << "Skeleton roots: ";
+					for (lemon::ListDigraph::Node r : roots)
+					{
+						std::cout << _name[r] << " ";
+					}
+					std::cout << std::endl;
+
 					size_t num_roots = roots.size();
 					ozz::animation::offline::RawSkeleton raw_skeleton;
 					raw_skeleton.roots.resize(num_roots);
-
-					for (size_t i; i < num_roots; i++)
+					
+					std::cout << "About to start building skeleton." << std::endl;
+					for (size_t i = 0; i < num_roots; i++)
 					{
 						lemon::ListDigraph::Node r = roots[i];
 						ozz::animation::offline::RawSkeleton::Joint& root_joint = raw_skeleton.roots[i];
@@ -64,7 +70,7 @@ class loader
 					{
 						count++;
 						lemon::ListDigraph::Node n(it);
-						std::cout << "Node name = " << _name[n] << std::endl;
+						std::cout << "Node " << count << " name = " << _name[n] << std::endl;
 					}
 
 					std::cout << "Count = " << count << std::endl;
@@ -98,7 +104,6 @@ class loader
 				void recursive_build(aiNode* current, const std::set<std::string>& bone_names)
 				{
 					std::string current_node_name = std::string(current->mName.C_Str());
-					// std::cout << "recursive_build - evaluating " << current_node_name << std::endl;
 					for (size_t i = 0; i < current->mNumChildren; i++)
 					{
 						aiNode* child = current->mChildren[i];
@@ -334,9 +339,9 @@ class loader
 			
 			loader::hierarchy bone_hierarchy;
 
-			bone_hierarchy.init(scene, scene_bone_names);//root_bone_node);
+			bone_hierarchy.init(scene, scene_bone_names);
 
-			// bone_hierarchy.print_info();
+			bone_hierarchy.print_info();
 
 			ozz::animation::offline::RawSkeleton raw_skel = bone_hierarchy.make_raw_skeleton();
 
@@ -349,6 +354,53 @@ class loader
 			{
 				std::cout << "Skeleton validation success!" << std::endl;
 			}
+
+			ozz::animation::offline::SkeletonBuilder skel_builder;
+			ozz::animation::Skeleton* skeleton = skel_builder(raw_skel);
+			
+			
+			const char* const* joint_names = skeleton->joint_names();
+			size_t num_joints = skeleton->num_joints();
+
+			std::unordered_map<std::string, size_t> joint_indices;
+			for (size_t i = 0; i < num_joints; ++i)
+			{
+				std::string s = std::string(joint_names[i]);
+				joint_indices.insert(std::make_pair(s, i));
+			}
+		
+			std::cout << "Displaying ozz skeleton joint names and indices" << std::endl;
+
+			for(auto it = joint_indices.begin(); it != joint_indices.end(); it++)
+			{
+				std::cout << "Name = " << it->first << ", index = " << it->second << std::endl;
+			}
+
+			// TODO: Build animations
+		
+			size_t num_anims = scene->mNumAnimations;
+			for (size_t anim_num = 0; anim_num < num_anims; ++anim_num)
+			{
+				aiAnimation* anim = scene->mAnimations[anim_num];
+				double ticks = anim->mDuration;
+				double ticks_per_sec = anim->mTicksPerSecond;
+				size_t num_channels = anim->mNumChannels;
+				std::string anim_name = std::string(anim->mName.C_Str());
+
+				std::cout << "Assimp animation " << anim_num + 1 << " out of " << num_anims << ". Name: " << anim_name << ". Ticks = " << ticks << ". Ticks per second = " << ticks_per_sec << ". Number of channels = " << num_channels << std::endl;
+
+				for (size_t channel_num = 0; channel_num < num_channels; ++channel_num)
+				{
+
+				}
+			}
+
+
+			// TODO: Binary blob of mesh data
+			
+			// TODO: Directory structure for output
+
+			// TODO: Options via config file
 
 			return true;
 		}
