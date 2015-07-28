@@ -4,9 +4,8 @@ project(mesh_importer)
 
 #set(CMAKE_BUILD_TYPE "DEBUG")
 set(CMAKE_CXX_FLAGS "-std=c++11 -Wall ${CMAKE_CXX_FLAGS}")
-
+include_directories()
 include_directories(libs/lemon)
-
 include_directories(libs/cppformat)
 list (APPEND cppformat_src
 	libs/cppformat/format.cc
@@ -14,6 +13,6 @@ list (APPEND cppformat_src
 	)
 
 
-add_executable(mesh_importer mesh_import.cpp ${cppformat_src} ${ozz_src})
+add_executable(mesh_importer main.cpp ${cppformat_src} ${ozz_src})
 
 target_link_libraries(mesh_importer assimp emon ozz_animation_offline_r ozz_animation_r ozz_geometry_r ozz_base_r ozz_options_r ozz_animation_collada_r )
