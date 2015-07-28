@@ -12,6 +12,9 @@
 #include <ozz/animation/offline/raw_skeleton.h>
 #include <ozz/animation/offline/skeleton_builder.h>
 #include <ozz/animation/runtime/skeleton.h>
+#include <ozz/animation/offline/raw_animation.h>
+#include <ozz/animation/offline/animation_builder.h>
+#include <ozz/animation/runtime/animation.h>
 
 
 #include "format.h"
@@ -39,7 +42,7 @@ class loader
 				ozz::animation::offline::RawSkeleton make_raw_skeleton()
 				{
 					std::vector<lemon::ListDigraph::Node> roots = find_roots();
-				
+
 					std::cout << "Skeleton roots: ";
 					for (lemon::ListDigraph::Node r : roots)
 					{
@@ -50,7 +53,7 @@ class loader
 					size_t num_roots = roots.size();
 					ozz::animation::offline::RawSkeleton raw_skeleton;
 					raw_skeleton.roots.resize(num_roots);
-					
+
 					std::cout << "About to start building skeleton." << std::endl;
 					for (size_t i = 0; i < num_roots; i++)
 					{
@@ -92,7 +95,7 @@ class loader
 						{
 							++count;
 						}
-						
+
 						if (count == 0)
 						{
 							roots.push_back(n);
@@ -107,7 +110,7 @@ class loader
 					for (size_t i = 0; i < current->mNumChildren; i++)
 					{
 						aiNode* child = current->mChildren[i];
-					
+
 						if (bone_names.find(current_node_name) != bone_names.end())
 						{
 							std::string child_name = std::string(current->mChildren[i]->mName.C_Str());
@@ -220,7 +223,7 @@ class loader
 			std::vector<uint32_t> indices;
 			std::vector<std::string> bone_names;
 		};
-		
+
 		bool load(const aiScene* scene, const std::string& name)
 		{
 			if (!scene)
@@ -336,7 +339,7 @@ class loader
 				}
 				meshes.push_back(temp_mesh);
 			}
-			
+
 			loader::hierarchy bone_hierarchy;
 
 			bone_hierarchy.init(scene, scene_bone_names);
@@ -357,8 +360,8 @@ class loader
 
 			ozz::animation::offline::SkeletonBuilder skel_builder;
 			ozz::animation::Skeleton* skeleton = skel_builder(raw_skel);
-			
-			
+
+
 			const char* const* joint_names = skeleton->joint_names();
 			size_t num_joints = skeleton->num_joints();
 
@@ -368,7 +371,7 @@ class loader
 				std::string s = std::string(joint_names[i]);
 				joint_indices.insert(std::make_pair(s, i));
 			}
-		
+
 			std::cout << "Displaying ozz skeleton joint names and indices" << std::endl;
 
 			for(auto it = joint_indices.begin(); it != joint_indices.end(); it++)
@@ -377,27 +380,116 @@ class loader
 			}
 
 			// TODO: Build animations
-		
+			std::vector<ozz::animation::offline::RawAnimation> raw_animations;
 			size_t num_anims = scene->mNumAnimations;
+
 			for (size_t anim_num = 0; anim_num < num_anims; ++anim_num)
 			{
 				aiAnimation* anim = scene->mAnimations[anim_num];
 				double ticks = anim->mDuration;
 				double ticks_per_sec = anim->mTicksPerSecond;
-				size_t num_channels = anim->mNumChannels;
-				std::string anim_name = std::string(anim->mName.C_Str());
+				size_t num_unfiltered_channels = anim->mNumChannels;
 
-				std::cout << "Assimp animation " << anim_num + 1 << " out of " << num_anims << ". Name: " << anim_name << ". Ticks = " << ticks << ". Ticks per second = " << ticks_per_sec << ". Number of channels = " << num_channels << std::endl;
-
-				for (size_t channel_num = 0; channel_num < num_channels; ++channel_num)
+				if (ticks_per_sec < 0.0001)
 				{
-
+					ticks_per_sec = 1.0;
 				}
+
+				std::string anim_name = std::string(anim->mName.C_Str());
+				std::cout << "Assimp animation " << anim_num + 1 << " out of " << num_anims << ". Name: " << anim_name << ". Ticks = " << ticks << ". Ticks per second = " << ticks_per_sec << ". Number of (unfiltered) channels = " << num_unfiltered_channels << std::endl;
+
+				ozz::animation::offline::RawAnimation raw_animation;
+				raw_animation.duration = ticks * ticks_per_sec;
+				//raw_animation.tracks.resize(num_channels);
+
+				// Filter out the anim nodes that aren't bones.
+				// TODO: Find out if this is necessary or desirable
+				std::set<std::tuple<size_t, aiNodeAnim*>> valid_channels;
+				for (size_t num = 0; num < num_unfiltered_channels; ++num)
+				{
+					aiNodeAnim* anim_node = anim->mChannels[num];
+					std::string anim_node_name = std::string(anim_node->mNodeName.C_Str());
+					auto it = joint_indices.find(anim_node_name);
+
+					if(it != joint_indices.end())
+					{
+						size_t anim_node_skeleton_index = it->second;
+						valid_channels.insert(std::make_tuple(anim_node_skeleton_index, anim_node));
+						std:: cout << "Found node " << anim_node_name << " for animation track " << num << "." << std::endl;
+					}
+					else
+					{
+						std::cout << "Could not find node " << anim_node_name << " required to build animation track " << num <<  ". SKipping." << std::endl;
+						continue;
+					}
+
+					//const ozz::animation::offline::RawAnimation::TranslationKey trans_key = {0.f, ozz::math::Float3(0.f, 4.6f, 0.f)};
+					//raw_animation.tracks[0].translations.push_back(key0);
+				}
+
+				raw_animation.tracks.resize(num_joints);
+				for (std::tuple<size_t, aiNodeAnim*> chan : valid_channels)
+				{
+					size_t track_index = std::get<0>(chan);
+					aiNodeAnim* anim_node = std::get<1>(chan);
+					
+					size_t num_translations = anim_node->mNumPositionKeys;
+					size_t num_rotations = anim_node->mNumRotationKeys;
+					size_t num_scales = anim_node->mNumScalingKeys;
+					
+					std::cout << "Bone "<< anim_node->mNodeName.C_Str() << ", skeleton index " << track_index << " - Inserting " << num_translations << " translations, " << num_rotations << " rotations, " << num_scales << " scales." << std::endl;
+
+					for (size_t i = 0; i < num_translations; ++i)
+					{
+						std::cout << "Inserting translation num " << i << ": ";
+						aiVectorKey k = anim_node->mPositionKeys[i];
+						double t = k.mTime;
+						aiVector3D val = k.mValue;
+						std::cout << " time = " << t << ", (" << val.x << ", " << val.y << ", " << val.z << ")" << std::endl;
+						const ozz::animation::offline::RawAnimation::TranslationKey trans_key = { t, ozz::math::Float3(val.x, val.y, val.z) };
+						raw_animation.tracks[track_index].translations.push_back(trans_key);
+					}
+					for (size_t i = 0; i < num_rotations; ++i)
+					{
+						std::cout << "Inserting rotation num " << i << ": ";
+						aiQuatKey k = anim_node->mRotationKeys[i];
+						double t = k.mTime;
+						aiQuaternion val = k.mValue;
+						std::cout << " time = " << t << ", (" << val.x << ", " << val.y << ", " << val.z << ", " << val.w << ")" << std::endl;
+
+						const ozz::animation::offline::RawAnimation::RotationKey rot_key = { t, ozz::math::Quaternion(val.x, val.y, val.z, val.w) };
+						raw_animation.tracks[track_index].rotations.push_back(rot_key);
+					}
+					for (size_t i = 0; i < num_scales; ++i)
+					{
+						std::cout << "Inserting scale num " << i << std::endl;
+						aiVectorKey k = anim_node->mScalingKeys[i];
+						double t = k.mTime;
+						aiVector3D val = k.mValue;
+						std::cout << " time = " << t << ", (" << val.x << ", " << val.y << ", " << val.z << ")" << std::endl;
+						const ozz::animation::offline::RawAnimation::ScaleKey scale_key = { t, ozz::math::Float3(val.x, val.y, val.z) };
+						raw_animation.tracks[track_index].scales.push_back(scale_key);
+					}
+				}
+				if (!raw_animation.Validate())
+				{
+					std::cout << "Animation validate failed! :(" << std::endl;
+					return -3;
+				}
+				else
+				{
+					std::cout << "Animation validate success! :)" << std::endl;
+				}
+
+				ozz::animation::offline::AnimationBuilder builder;
+				ozz::animation::Animation* animation = builder(raw_animation);
+				
 			}
 
 
+
 			// TODO: Binary blob of mesh data
-			
+
 			// TODO: Directory structure for output
 
 			// TODO: Options via config file
