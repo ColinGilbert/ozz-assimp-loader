@@ -4,3 +4,6 @@
 [submodule "libs/ozz-animation"]
 	path = libs/ozz-animation
 	url = https://www.github.com/ColinGilbert/ozz-animation.git
+[submodule "libs/cppformat"]
+	path = libs/cppformat
+	url = https://www.github.com/ColinGilbert/cppformat.git
