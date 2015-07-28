@@ -1,3 +1,6 @@
 [submodule "libs/lemon"]
 	path = libs/lemon
 	url = https://www.github.com/ColinGilbert/lemon.git
+[submodule "libs/ozz-animation"]
+	path = libs/ozz-animation
+	url = https://www.github.com/ColinGilbert/ozz-animation.git
