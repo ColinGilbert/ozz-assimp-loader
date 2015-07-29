@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.0)
-
 project(mesh_importer)
 
 #set(CMAKE_BUILD_TYPE "DEBUG")
@@ -15,7 +14,13 @@ list (APPEND cppformat_src
 	libs/cppformat/posix.cc
 	)
 
+include_directories(libs/cereal/include)
+
 
 add_executable(mesh_importer main.cpp ${cppformat_src} ${ozz_src})
 
 target_link_libraries(mesh_importer assimp emon ozz_animation_offline_r	ozz_animation_r ozz_geometry_r ozz_base_r ${Boost_LIBRARIES})
+
+project(test_mesh_output)
+include_directories(libs/cereal/include)
+add_executable(test_mesh_output test_mesh_output.cpp)

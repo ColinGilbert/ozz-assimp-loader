@@ -7,3 +7,6 @@
 [submodule "libs/cppformat"]
 	path = libs/cppformat
 	url = https://www.github.com/ColinGilbert/cppformat.git
+[submodule "libs/cereal"]
+	path = libs/cereal
+	url = https://www.github.com/ColinGilbert/cereal.git

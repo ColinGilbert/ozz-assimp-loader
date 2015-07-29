@@ -7,7 +7,7 @@
 #include <set>
 #include <unordered_map>
 #include <iostream>
-
+#include <fstream>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -24,14 +24,58 @@
 
 #include <boost/filesystem.hpp>
 
+#include <cereal/types/string.hpp>
+#include <cereal/types/array.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/set.hpp>
+#include <cereal/archives/binary.hpp>
+
+
 #include "format.h"
 
 class loader
 {
 	public:
+		struct mesh_vertex
+		{
+			template <class Archive>
+				void serialize( Archive & ar )
+				{
+					ar(position, normal, uv, bone_names, bone_weights);
+				}
+			mesh_vertex() : position( {0.0f, 0.0f, 0.0f }), normal({ 0.0f, 0.0f, 0.0f }), uv({ 0.0f, 0.0f} ), bone_names({ "", "", "", "" }), bone_weights({ 0.0f, 0.0f, 0.0f, 0.0f} ) {}
+			std::array<float, 3> position, normal;
+			std::array<float, 2> uv;
+			std::array<std::string, 4> bone_names;
+			std::array<float, 4> bone_weights;
+		};
+
+		struct mesh
+		{
+			template <class Archive>
+				void serialize(Archive & ar)
+				{
+					ar(translation, scale, dimensions, rotation, name, vertices, indices, bone_names);
+				}
+			std::array<float, 3> translation, scale, dimensions;
+			std::array<float, 4> rotation;
+			std::string name;
+			std::vector<mesh_vertex> vertices;
+			std::vector<uint32_t> indices;
+			std::vector<std::string> bone_names;
+		};
+
+		template <class Archive>
+		void serialize(Archive& ar)
+		{
+			ar(meshes);
+		}
+
 		class hierarchy
 		{
 			public:
+
+
 				hierarchy(): _translation(_graph), _scale(_graph), _rotation(_graph), _name(_graph) {}
 
 				void init(const aiScene* scene, const std::set<std::string>& bone_names)
@@ -212,24 +256,7 @@ class loader
 				std::map<aiNode*, lemon::ListDigraph::Node> nodes;
 		};
 
-		struct mesh_vertex
-		{
-			mesh_vertex() : position( {0.0f, 0.0f, 0.0f }), normal({ 0.0f, 0.0f, 0.0f }), uv({ 0.0f, 0.0f} ), bone_names({ "", "", "", "" }), bone_weights({ 0.0f, 0.0f, 0.0f, 0.0f} ) {}
-			std::array<float, 3> position, normal;
-			std::array<float, 2> uv;
-			std::array<std::string, 4> bone_names;
-			std::array<float, 4> bone_weights;
-		};
 
-		struct mesh
-		{
-			std::array<float, 3> translation, scale, dimensions;
-			std::array<float, 4> rotation;
-			std::string name;
-			std::vector<mesh_vertex> vertices;
-			std::vector<uint32_t> indices;
-			std::vector<std::string> bone_names;
-		};
 
 		bool load(const aiScene* scene, const std::string& name)
 		{
@@ -239,7 +266,6 @@ class loader
 				return false;
 			}
 
-			std::vector<loader::mesh> meshes;
 			std::set<std::string> scene_bone_names;
 			//aiNode* scene_root = scene->mRootNode;
 
@@ -380,7 +406,8 @@ class loader
 			ozz::animation::offline::SkeletonBuilder skel_builder;
 			ozz::animation::Skeleton* skeleton = skel_builder(raw_skel);
 
-			std::string output_pathname = "./output/" + name;
+			output_pathname = "./output/" + name;
+
 			try
 			{
 				boost::filesystem::create_directory(boost::filesystem::path(output_pathname));
@@ -399,14 +426,6 @@ class loader
 			ozz::io::File output_raw_skel_file(output_raw_skel_filename.c_str(), "wb");
 			ozz::io::OArchive raw_skel_archive(&output_raw_skel_file);
 			raw_skel_archive << raw_skel;
-/*
-			fmt::MemoryWriter output_skeleton_filename;
-			output_skeleton_filename << output_pathname << "/skeleton.ozz";
-			std::cout << "Outputting skeleton to " << output_skeleton_filename.str() << std::endl;
-			ozz::io::File output_skeleton_file(output_skeleton_filename.c_str(), "wb");
-			ozz::io::OArchive skel_archive(&output_skeleton_file);
-			skel_archive << skeleton;
-*/
 
 			// This bit of code allows the animation to use the skeleton indices from the ozz skeleton structure.
 			// TODO: Find out if necessary.
@@ -426,7 +445,7 @@ class loader
 			{
 				std::cout << "Name = " << it->first << ", index = " << it->second << std::endl;
 			}
-			
+
 
 			std::vector<ozz::animation::offline::RawAnimation> raw_animations;
 			size_t num_anims = scene->mNumAnimations;
@@ -476,11 +495,11 @@ class loader
 				{
 					size_t track_index = std::get<0>(chan);
 					aiNodeAnim* anim_node = std::get<1>(chan);
-					
+
 					size_t num_translations = anim_node->mNumPositionKeys;
 					size_t num_rotations = anim_node->mNumRotationKeys;
 					size_t num_scales = anim_node->mNumScalingKeys;
-					
+
 					std::cout << "Bone "<< anim_node->mNodeName.C_Str() << ", skeleton index " << track_index << " - Inserting " << num_translations << " translations, " << num_rotations << " rotations, " << num_scales << " scales." << std::endl;
 
 					for (size_t i = 0; i < num_translations; ++i)
@@ -525,36 +544,41 @@ class loader
 					std::cout << "Animation validate success! :)" << std::endl;
 				}
 
-			//	ozz::animation::offline::AnimationBuilder builder;
-			//	ozz::animation::Animation* animation = builder(raw_animation);
-				// TODO: Optimize animation.
 
-				// TODO: Binary blob of mesh data
-
-				fmt::MemoryWriter output_anim_filename;
+				fmt::MemoryWriter output_raw_anim_filename;
 				if (anim_name.empty())
 				{
-				output_anim_filename << output_pathname << "/" << "anim-" << anim_num << "-raw.ozz";
+					output_raw_anim_filename << output_pathname << "/" << "anim-" << anim_num << "-raw.ozz";
 				}
 				else
 				{
-					output_anim_filename << output_pathname << "/" << anim_name << "-raw.ozz";
+					output_raw_anim_filename << output_pathname << "/" << anim_name << "-raw.ozz";
 				}
-				std::cout << "Outputting raw animation to " << output_anim_filename.str() << std::endl;
+				std::cout << "Outputting raw animation to " << output_raw_anim_filename.str() << std::endl;
 
 
-				ozz::io::File output_raw_anim_file(output_anim_filename.c_str(), "wb");
+				ozz::io::File output_raw_anim_file(output_raw_anim_filename.c_str(), "wb");
 				ozz::io::OArchive raw_anim_archive(&output_raw_anim_file);
 				raw_anim_archive << raw_animation;
-				
+
+				ozz::animation::offline::AnimationBuilder builder;
+				ozz::animation::Animation* runtime_animation = builder(raw_animation);
+
 
 				// TODO: Options via config file
 
 			}
 
-
-
 			return true;
 		}
+
+		std::string get_output_path() const
+		{
+			return output_pathname;
+		}
+
+	protected:
+		std::vector<loader::mesh> meshes;
+		std::string output_pathname;
 };
 
