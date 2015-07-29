@@ -43,9 +43,8 @@ class loader
 			std::vector<uint32_t> indices;
 			std::vector<std::string> bone_names;
 		};
+
 		std::vector<loader::mesh> meshes;
-
-
 };
 
 
