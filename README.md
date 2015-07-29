@@ -7,7 +7,9 @@ To clone:
 git clone --recursive https://www.github.com/ColinGilbert/ozz-assimp-loader
 ```
 
-To use:
+To use, copy the program to whichever directory you're using and type in:
 ```
 ./mesh_importer <filename>
 ```
+
+It creates a directory called "output" in its local directory and spits out all necessary files, but soon there'll be a config file to allow the user to change that, among other things.

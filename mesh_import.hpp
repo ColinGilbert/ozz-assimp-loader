@@ -406,7 +406,8 @@ class loader
 			ozz::io::File output_skeleton_file(output_skeleton_filename.c_str(), "wb");
 			ozz::io::OArchive skel_archive(&output_skeleton_file);
 			skel_archive << skeleton;
-*/			
+*/
+
 			// This bit of code allows the animation to use the skeleton indices from the ozz skeleton structure.
 			// TODO: Find out if necessary.
 			const char* const* joint_names = skeleton->joint_names();
@@ -529,9 +530,6 @@ class loader
 				// TODO: Optimize animation.
 
 				// TODO: Binary blob of mesh data
-
-				// TODO: Proper directory structure for output
-
 
 				fmt::MemoryWriter output_anim_filename;
 				if (anim_name.empty())
