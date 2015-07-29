@@ -2,6 +2,8 @@
 // MIT license.
 // Colin Gilbert
 
+// TODO: Options via config file
+
 #include <array>
 #include <vector>
 #include <set>
@@ -603,7 +605,7 @@ class loader
 				runtime_anim_archive << *runtime_animation;
 
 				
-				// TODO: Options via config file
+
 
 			}
 
@@ -619,4 +621,3 @@ class loader
 		std::vector<loader::mesh> meshes;
 		std::string output_pathname;
 };
-
