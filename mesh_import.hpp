@@ -604,7 +604,15 @@ class loader
 				ozz::io::OArchive runtime_anim_archive(&output_runtime_anim_file);
 				runtime_anim_archive << *runtime_animation;
 
+
 				
+				// Mesh save
+				std::cout << "Outputting meshes to " << output_pathname << "/meshes.bin" << std::endl;
+				fmt::MemoryWriter output_mesh_filename;
+				output_mesh_filename << output_pathname << "/meshes.bin";
+				std::ofstream os(output_mesh_filename.c_str(), std::ios::binary);
+				cereal::BinaryOutputArchive archive(os);
+				archive(*this);
 
 
 			}
