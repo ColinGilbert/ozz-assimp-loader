@@ -19,7 +19,10 @@
 #include <ozz/animation/offline/raw_animation.h>
 #include <ozz/animation/offline/animation_builder.h>
 #include <ozz/animation/runtime/animation.h>
+#include <ozz/base/io/archive.h>
+#include <ozz/base/io/stream.h>
 
+#include <boost/filesystem.hpp>
 
 #include "format.h"
 
@@ -238,12 +241,14 @@ class loader
 
 			std::vector<loader::mesh> meshes;
 			std::set<std::string> scene_bone_names;
-			aiNode* scene_root = scene->mRootNode;
+			//aiNode* scene_root = scene->mRootNode;
 
 			for (size_t mesh_num = 0; mesh_num < scene->mNumMeshes; mesh_num++)
 			{
 				const aiMesh* mesh_data = scene->mMeshes[mesh_num];
-				std::cout << fmt::format("Attempting to obtain data for mesh {0}\n", name);
+				loader::mesh temp_mesh;
+				temp_mesh.name = std::string(mesh_data->mName.C_Str());
+				std::cout << fmt::format("Attempting to obtain data for mesh {0}\n", temp_mesh.name);
 
 				size_t num_verts = mesh_data->mNumVertices;
 				size_t num_faces = mesh_data->mNumFaces;
@@ -252,9 +257,6 @@ class loader
 				bool has_texcoords = mesh_data->HasTextureCoords(0);
 
 				std::cout << fmt::format("Mesh {0} ({1}) has {2} verts and {3} bones. Normals? {4}\n", name, mesh_num, num_verts, num_bones, has_normals);
-
-				loader::mesh temp_mesh;
-				temp_mesh.name = std::string(mesh_data->mName.C_Str());
 
 				std::array<float, 3> min_extents, max_extents;
 
@@ -344,6 +346,19 @@ class loader
 				meshes.push_back(temp_mesh);
 			}
 
+
+			std::cout << "Total of " <<  meshes.size() << " meshes in file " << name << "." << std::endl;
+
+			for (mesh m : meshes)
+			{
+				std::cout << "Bones for mesh " << m.name << ":";
+				for (std::string s : m.bone_names)
+				{
+					std::cout << " " << s; 
+				}
+				std::cout << std::endl;
+			}
+
 			loader::hierarchy bone_hierarchy;
 
 			bone_hierarchy.init(scene, scene_bone_names);
@@ -365,7 +380,35 @@ class loader
 			ozz::animation::offline::SkeletonBuilder skel_builder;
 			ozz::animation::Skeleton* skeleton = skel_builder(raw_skel);
 
+			std::string output_pathname = "./output/" + name;
+			try
+			{
+				boost::filesystem::create_directory(boost::filesystem::path(output_pathname));
+			}
+			catch (std::exception& e)
+			{
+				std::cout << "Could not create path: " << output_pathname;
+				return false;
+			}
 
+			// Most of the time, the user will want to use the runtime skeleton, but at this point we give option for both.
+			// TODO: Fix the runtime skeleton not exporting
+			fmt::MemoryWriter output_raw_skel_filename;
+			output_raw_skel_filename << output_pathname << "/raw-skeleton.ozz";
+			std::cout << "Outputting raw skeleton to " << output_raw_skel_filename.str() << std::endl;
+			ozz::io::File output_raw_skel_file(output_raw_skel_filename.c_str(), "wb");
+			ozz::io::OArchive raw_skel_archive(&output_raw_skel_file);
+			raw_skel_archive << raw_skel;
+/*
+			fmt::MemoryWriter output_skeleton_filename;
+			output_skeleton_filename << output_pathname << "/skeleton.ozz";
+			std::cout << "Outputting skeleton to " << output_skeleton_filename.str() << std::endl;
+			ozz::io::File output_skeleton_file(output_skeleton_filename.c_str(), "wb");
+			ozz::io::OArchive skel_archive(&output_skeleton_file);
+			skel_archive << skeleton;
+*/			
+			// This bit of code allows the animation to use the skeleton indices from the ozz skeleton structure.
+			// TODO: Find out if necessary.
 			const char* const* joint_names = skeleton->joint_names();
 			size_t num_joints = skeleton->num_joints();
 
@@ -382,8 +425,8 @@ class loader
 			{
 				std::cout << "Name = " << it->first << ", index = " << it->second << std::endl;
 			}
+			
 
-			// TODO: Build animations
 			std::vector<ozz::animation::offline::RawAnimation> raw_animations;
 			size_t num_anims = scene->mNumAnimations;
 
@@ -422,7 +465,7 @@ class loader
 					}
 					else
 					{
-						std::cout << "Could not find node " << anim_node_name << " required to build animation track " << num <<  ". SKipping." << std::endl;
+						std::cout << "Could not find node " << anim_node_name << " required to build animation track " << num <<  ". Skipping." << std::endl;
 						continue;
 					}
 				}
@@ -446,7 +489,7 @@ class loader
 						double t = k.mTime;
 						aiVector3D val = k.mValue;
 						std::cout << " time = " << t << ", (" << val.x << ", " << val.y << ", " << val.z << ")" << std::endl;
-						const ozz::animation::offline::RawAnimation::TranslationKey trans_key = { t, ozz::math::Float3(val.x, val.y, val.z) };
+						const ozz::animation::offline::RawAnimation::TranslationKey trans_key = { static_cast<float>(t), ozz::math::Float3(static_cast<float>(val.x), static_cast<float>(val.y), static_cast<float>(val.z)) };
 						raw_animation.tracks[track_index].translations.push_back(trans_key);
 					}
 					for (size_t i = 0; i < num_rotations; ++i)
@@ -457,7 +500,7 @@ class loader
 						aiQuaternion val = k.mValue;
 						std::cout << " time = " << t << ", (" << val.x << ", " << val.y << ", " << val.z << ", " << val.w << ")" << std::endl;
 
-						const ozz::animation::offline::RawAnimation::RotationKey rot_key = { t, ozz::math::Quaternion(val.x, val.y, val.z, val.w) };
+						const ozz::animation::offline::RawAnimation::RotationKey rot_key = { static_cast<float>(t), ozz::math::Quaternion(static_cast<float>(val.x), static_cast<float>(val.y), static_cast<float>(val.z), static_cast<float>(val.w)) };
 						raw_animation.tracks[track_index].rotations.push_back(rot_key);
 					}
 					for (size_t i = 0; i < num_scales; ++i)
@@ -467,7 +510,7 @@ class loader
 						double t = k.mTime;
 						aiVector3D val = k.mValue;
 						std::cout << " time = " << t << ", (" << val.x << ", " << val.y << ", " << val.z << ")" << std::endl;
-						const ozz::animation::offline::RawAnimation::ScaleKey scale_key = { t, ozz::math::Float3(val.x, val.y, val.z) };
+						const ozz::animation::offline::RawAnimation::ScaleKey scale_key = { static_cast<float>(t), ozz::math::Float3(static_cast<float>(val.x), static_cast<float>(val.y), static_cast<float>(val.z)) };
 						raw_animation.tracks[track_index].scales.push_back(scale_key);
 					}
 				}
@@ -481,13 +524,31 @@ class loader
 					std::cout << "Animation validate success! :)" << std::endl;
 				}
 
-				ozz::animation::offline::AnimationBuilder builder;
-				ozz::animation::Animation* animation = builder(raw_animation);
+			//	ozz::animation::offline::AnimationBuilder builder;
+			//	ozz::animation::Animation* animation = builder(raw_animation);
 				// TODO: Optimize animation.
 
 				// TODO: Binary blob of mesh data
 
 				// TODO: Proper directory structure for output
+
+
+				fmt::MemoryWriter output_anim_filename;
+				if (anim_name.empty())
+				{
+				output_anim_filename << output_pathname << "/" << "anim-" << anim_num << "-raw.ozz";
+				}
+				else
+				{
+					output_anim_filename << output_pathname << "/" << anim_name << "-raw.ozz";
+				}
+				std::cout << "Outputting raw animation to " << output_anim_filename.str() << std::endl;
+
+
+				ozz::io::File output_raw_anim_file(output_anim_filename.c_str(), "wb");
+				ozz::io::OArchive raw_anim_archive(&output_raw_anim_file);
+				raw_anim_archive << raw_animation;
+				
 
 				// TODO: Options via config file
 
