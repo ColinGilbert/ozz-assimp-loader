@@ -404,14 +404,26 @@ class loader
 			}
 
 			ozz::animation::offline::SkeletonBuilder skel_builder;
-			ozz::animation::Skeleton* skeleton = skel_builder(raw_skel);
+			ozz::animation::Skeleton* runtime_skel = skel_builder(raw_skel);
 
-			output_pathname = "./output/" + name;
+			std::string output_base_pathname = "./output/";
+			
+			try
+			{
+				boost::filesystem::create_directory(boost::filesystem::path(output_base_pathname));
+			}
+			catch (std::exception& e)
+			{
+				std::cout << "Could not create base path: " << output_base_pathname;
+				return false;
+			}
+			output_pathname = output_base_pathname + name;
 
 			try
 			{
 				boost::filesystem::create_directory(boost::filesystem::path(output_pathname));
 			}
+			
 			catch (std::exception& e)
 			{
 				std::cout << "Could not create path: " << output_pathname;
@@ -427,10 +439,17 @@ class loader
 			ozz::io::OArchive raw_skel_archive(&output_raw_skel_file);
 			raw_skel_archive << raw_skel;
 
+			fmt::MemoryWriter output_runtime_skel_filename;
+			output_runtime_skel_filename << output_pathname << "/runtime-skeleton.ozz";
+			std::cout << "Outputting runtime skeleton to " << output_runtime_skel_filename.str() << std::endl;
+			ozz::io::File output_runtime_skel_file(output_runtime_skel_filename.c_str(), "wb");
+			ozz::io::OArchive runtime_skel_archive(&output_runtime_skel_file);
+			runtime_skel_archive << *runtime_skel;
+
 			// This bit of code allows the animation to use the skeleton indices from the ozz skeleton structure.
 			// TODO: Find out if necessary.
-			const char* const* joint_names = skeleton->joint_names();
-			size_t num_joints = skeleton->num_joints();
+			const char* const* joint_names = runtime_skel->joint_names();
+			size_t num_joints = runtime_skel->num_joints();
 
 			std::unordered_map<std::string, size_t> joint_indices;
 			for (size_t i = 0; i < num_joints; ++i)
@@ -565,6 +584,25 @@ class loader
 				ozz::animation::Animation* runtime_animation = builder(raw_animation);
 
 
+				fmt::MemoryWriter output_runtime_anim_filename;
+				output_runtime_anim_filename << output_pathname << "/";
+				if (anim_name.empty())
+				{
+					output_runtime_anim_filename << anim_num;
+				}
+				else
+				{
+					output_runtime_anim_filename << anim_name;
+				}
+
+				output_runtime_anim_filename << "-runtime-anim.ozz";
+				std::cout << "Outputting raw animation to " << output_runtime_anim_filename.str() << std::endl;
+				
+				ozz::io::File output_runtime_anim_file(output_runtime_anim_filename.c_str(), "wb");
+				ozz::io::OArchive runtime_anim_archive(&output_runtime_anim_file);
+				runtime_anim_archive << *runtime_animation;
+
+				
 				// TODO: Options via config file
 
 			}
