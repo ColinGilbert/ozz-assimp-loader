@@ -45,11 +45,11 @@ class loader
 				{
 					ar(position, normal, uv, bone_names, bone_indices, bone_weights);
 				}
-			mesh_vertex() : position( {0.0f, 0.0f, 0.0f }), normal({ 0.0f, 0.0f, 0.0f }), uv({ 0.0f, 0.0f} ), bone_names({ "", "", "", "" }), bone_weights({ 0.0f, 0.0f, 0.0f, 0.0f} ) {}
+			mesh_vertex() : position( {0.0f, 0.0f, 0.0f }), normal({ 0.0f, 0.0f, 0.0f }), uv({ 0.0f, 0.0f} ), bone_names({ "", "", "", "" }), bone_indices({0, 0, 0, 0}), bone_weights({ 0.0f, 0.0f, 0.0f, 0.0f} ) {}
 			std::array<float, 3> position, normal;
 			std::array<float, 2> uv;
 			std::array<std::string, 4> bone_names;
-			std::array<uint8_t, 4> bone_indices;
+			std::array<size_t, 4> bone_indices;
 			std::array<float, 4> bone_weights;
 		};
 
@@ -69,10 +69,10 @@ class loader
 		};
 
 		template <class Archive>
-		void serialize(Archive& ar)
-		{
-			ar(meshes);
-		}
+			void serialize(Archive& ar)
+			{
+				ar(meshes);
+			}
 
 		class hierarchy
 		{
@@ -353,23 +353,27 @@ class loader
 					for (uint32_t i = 0; i < bone_data->mNumWeights; ++i)
 					{
 						uint32_t bone_vertex_id = bone_data->mWeights[i].mVertexId;
-						if (bone_vertex_id < static_cast<uint32_t>(mesh_data->mNumVertices))
+						//if (bone_vertex_id < static_cast<uint32_t>(mesh_data->mNumVertices))
+						//{
+						auto vert = temp_mesh.vertices[bone_vertex_id];
+						for (size_t j = 0; j < 4; ++j)
 						{
-							auto vert = temp_mesh.vertices[bone_vertex_id];
-							for (size_t j = 0; j < 4; ++j)
+							if (vert.bone_weights[j] == 0.0)
 							{
-								if (vert.bone_weights[j] == 0.0)
-								{
-									vert.bone_names[j] = temp_bone_name;
-									vert.bone_weights[j] = bone_data->mWeights[i].mWeight;
-									break;
-								}
+								vert.bone_names[j] = temp_bone_name;
+								vert.bone_weights[j] = bone_data->mWeights[i].mWeight;
+								break;
 							}
 						}
-						else
-						{
-							std::cout << "Vertex ID of Assimp bone higher than actual vertex count. Skipping." << std::endl;
-						}
+						temp_mesh.vertices[bone_vertex_id] = vert;	
+						//}
+
+						//else
+						//{
+						//	std::cout << "Vertex ID of Assimp bone higher than actual vertex count. Skipping." << std::endl;
+						//}
+
+
 					}
 				}
 				meshes.push_back(temp_mesh);
@@ -410,7 +414,7 @@ class loader
 			ozz::animation::Skeleton* runtime_skel = skel_builder(raw_skel);
 
 			std::string output_base_pathname = "./output/";
-			
+
 			try
 			{
 				boost::filesystem::create_directory(boost::filesystem::path(output_base_pathname));
@@ -426,7 +430,7 @@ class loader
 			{
 				boost::filesystem::create_directory(boost::filesystem::path(output_pathname));
 			}
-			
+
 			catch (std::exception& e)
 			{
 				std::cout << "Could not create path: " << output_pathname;
@@ -453,11 +457,11 @@ class loader
 			const char* const* joint_names = runtime_skel->joint_names();
 			size_t num_joints = runtime_skel->num_joints();
 
-			std::unordered_map<std::string, uint8_t> joint_indices;
+			std::unordered_map<std::string, size_t> joint_indices;
 			for (size_t i = 0; i < num_joints; ++i)
 			{
 				std::string s = std::string(joint_names[i]);
-				joint_indices.insert(std::make_pair(s, static_cast<uint8_t>(i)));
+				joint_indices.insert(std::make_pair(s, i));
 			}
 
 			std::cout << "Displaying ozz skeleton joint names and indices" << std::endl;
@@ -466,25 +470,40 @@ class loader
 			{
 				std::cout << "Name = " << it->first << ", index = " << it->second << std::endl;
 			}
-			
 			// Now, get the bone names from each vertex and insert the matching bone indices.
-			for (mesh m : meshes)
+			for (size_t mesh_index = 0; mesh_index < meshes.size(); ++mesh_index)
 			{
-				for (mesh_vertex v : m.vertices)
+				mesh m = meshes[mesh_index];
+				for (size_t vert_index = 0; vert_index < m.vertices.size(); ++vert_index)
 				{
+					mesh_vertex v = m.vertices[vert_index];
 					for (size_t i = 0; i < v.bone_names.size(); ++i)
 					{
 						std::string s = v.bone_names[i];
-						v.bone_indices[i] = joint_indices.find(s)->second;
 
+						if (!s.empty())
+						{
+							auto it = joint_indices.find(s);
+							if ( it != joint_indices.end())
+							{
+								v.bone_indices[i] = joint_indices.find(s)->second;
+								std::cout << "Found index " << v.bone_indices[i] << " for bone name " << v.bone_names[i] << std::endl;
+							}
+							else
+							{
+								std::cout << "ERROR! Could not find bone index for " << s << " in joint indices map!!!" << std::endl;
+								return false;
+							}
+						}
 					}
+					m.vertices[vert_index] = v;
 				}
+				meshes[mesh_index] = m;
 			}
 
-
 			std::vector<ozz::animation::offline::RawAnimation> raw_animations;
+			
 			size_t num_anims = scene->mNumAnimations;
-
 			for (size_t anim_num = 0; anim_num < num_anims; ++anim_num)
 			{
 				aiAnimation* anim = scene->mAnimations[anim_num];
@@ -613,13 +632,13 @@ class loader
 
 				output_runtime_anim_filename << "-runtime-anim.ozz";
 				std::cout << "Outputting raw animation to " << output_runtime_anim_filename.str() << std::endl;
-				
+
 				ozz::io::File output_runtime_anim_file(output_runtime_anim_filename.c_str(), "wb");
 				ozz::io::OArchive runtime_anim_archive(&output_runtime_anim_file);
 				runtime_anim_archive << *runtime_animation;
 
 
-				
+
 				// Mesh save
 				std::cout << "Outputting meshes to " << output_pathname << "/meshes.bin" << std::endl;
 				fmt::MemoryWriter output_mesh_filename;
