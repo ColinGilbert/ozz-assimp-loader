@@ -43,12 +43,13 @@ class loader
 			template <class Archive>
 				void serialize( Archive & ar )
 				{
-					ar(position, normal, uv, bone_names, bone_weights);
+					ar(position, normal, uv, bone_names, bone_indices, bone_weights);
 				}
 			mesh_vertex() : position( {0.0f, 0.0f, 0.0f }), normal({ 0.0f, 0.0f, 0.0f }), uv({ 0.0f, 0.0f} ), bone_names({ "", "", "", "" }), bone_weights({ 0.0f, 0.0f, 0.0f, 0.0f} ) {}
 			std::array<float, 3> position, normal;
 			std::array<float, 2> uv;
 			std::array<std::string, 4> bone_names;
+			std::array<uint8_t, 4> bone_indices;
 			std::array<float, 4> bone_weights;
 		};
 
@@ -433,7 +434,6 @@ class loader
 			}
 
 			// Most of the time, the user will want to use the runtime skeleton, but at this point we give option for both.
-			// TODO: Fix the runtime skeleton not exporting
 			fmt::MemoryWriter output_raw_skel_filename;
 			output_raw_skel_filename << output_pathname << "/raw-skeleton.ozz";
 			std::cout << "Outputting raw skeleton to " << output_raw_skel_filename.str() << std::endl;
@@ -453,11 +453,11 @@ class loader
 			const char* const* joint_names = runtime_skel->joint_names();
 			size_t num_joints = runtime_skel->num_joints();
 
-			std::unordered_map<std::string, size_t> joint_indices;
+			std::unordered_map<std::string, uint8_t> joint_indices;
 			for (size_t i = 0; i < num_joints; ++i)
 			{
 				std::string s = std::string(joint_names[i]);
-				joint_indices.insert(std::make_pair(s, i));
+				joint_indices.insert(std::make_pair(s, static_cast<uint8_t>(i)));
 			}
 
 			std::cout << "Displaying ozz skeleton joint names and indices" << std::endl;
@@ -465,6 +465,20 @@ class loader
 			for(auto it = joint_indices.begin(); it != joint_indices.end(); it++)
 			{
 				std::cout << "Name = " << it->first << ", index = " << it->second << std::endl;
+			}
+			
+			// Now, get the bone names from each vertex and insert the matching bone indices.
+			for (mesh m : meshes)
+			{
+				for (mesh_vertex v : m.vertices)
+				{
+					for (size_t i = 0; i < v.bone_names.size(); ++i)
+					{
+						std::string s = v.bone_names[i];
+						v.bone_indices[i] = joint_indices.find(s)->second;
+
+					}
+				}
 			}
 
 
