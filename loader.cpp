@@ -371,11 +371,9 @@ bool loader::load(const aiScene *scene, const std::string &name) {
           auto it = joint_indices.find(s);
           if (it != joint_indices.end()) {
             v.bone_indices[i] = joint_indices.find(s)->second;
-            std::cout << "Found index " << v.bone_indices[i]
-                      << " for bone name " << v.bone_names[i] << std::endl;
+            //std::cout << "Found index " << v.bone_indices[i] << " for bone name " << v.bone_names[i] << std::endl;
           } else {
-            std::cout << "ERROR! Could not find bone index for " << s
-                      << " in joint indices map!!!" << std::endl;
+            std::cout << "ERROR! Could not find bone index for " << s << " in joint indices map!!!" << std::endl;
             return false;
           }
         }
