@@ -162,8 +162,7 @@ void loader::hierarchy::recursive_print(lemon::ListDigraph::Node n) {
 
 bool loader::load(const aiScene *scene, const std::string &name) {
   if (!scene) {
-    std::cout << fmt::format("[Mesh] load({0}) - cannot open\n", name)
-              << std::endl;
+    std::cout << "[Mesh] load(" << name << ") - cannot open" << std::endl;
     return false;
   }
 
@@ -174,8 +173,8 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     const aiMesh *mesh_data = scene->mMeshes[mesh_num];
     loader::mesh temp_mesh;
     temp_mesh.name = std::string(mesh_data->mName.C_Str());
-    std::cout << fmt::format("Attempting to obtain data for mesh {0}\n",
-                             temp_mesh.name);
+    std::cout << "Attempting to obtain data for mesh " << std::endl;
+                             
 
     size_t num_verts = mesh_data->mNumVertices;
     size_t num_faces = mesh_data->mNumFaces;
@@ -183,9 +182,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     bool has_normals = mesh_data->HasNormals();
     bool has_texcoords = mesh_data->HasTextureCoords(0);
 
-    std::cout << fmt::format(
-        "Mesh {0} ({1}) has {2} verts and {3} bones. Normals? {4}\n", name,
-        mesh_num, num_verts, num_bones, has_normals);
+    std::cout << "Mesh "<< name << " ("<< mesh_num << ") has " << num_verts << " verts and " << num_bones << " bones. Normals? " << has_normals << std::endl;
 
     std::array<float, 3> min_extents, max_extents;
 

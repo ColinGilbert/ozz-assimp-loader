@@ -29,7 +29,6 @@
 #include <cereal/archives/binary.hpp>
 
 
-#include <fmt/format.h>
 #include <map>
 #include <memory>
 #include <string>

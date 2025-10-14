@@ -5,7 +5,7 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/types/set.hpp>
 #include <cereal/archives/binary.hpp>
-#include "format.h"
+#include <iostream>
 
 class loader
 {
@@ -101,10 +101,7 @@ int main(int argc, char** argv)
 				//size_t u = static_cast<size_t>(v.bone_indices[ii]);
 				size_t u = v.bone_indices[ii];
 				float f = v.bone_weights[ii];
-				fmt::MemoryWriter w;
-				//w << " Name = " << s << " Index = " << u << " Weight = " << f;
-				w.write("Name = {0}, Index = {1}, Weight = {2}; ", s, u, f);
-				std::cout << w.str();
+				std::cout << " Name = " << s << " Index = " << u << " Weight = " << f << std::endl;
 			}
 			
 			std::cout << std::endl;
