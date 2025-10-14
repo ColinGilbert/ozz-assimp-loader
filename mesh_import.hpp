@@ -33,7 +33,11 @@
 #include <cereal/archives/binary.hpp>
 
 
-#include "format.h"
+#include <fmt/format.h>
+#include <map>
+#include <memory>
+#include <string>
+#include <iostream>
 
 class loader
 {
@@ -411,7 +415,7 @@ class loader
 			}
 
 			ozz::animation::offline::SkeletonBuilder skel_builder;
-			ozz::animation::Skeleton* runtime_skel = skel_builder(raw_skel);
+			std::unique_ptr<ozz::animation::Skeleton, ozz::Deleter<ozz::animation::Skeleton>> runtime_skel = skel_builder(raw_skel);
 
 			std::string output_base_pathname = "./output/";
 
@@ -438,23 +442,24 @@ class loader
 			}
 
 			// Most of the time, the user will want to use the runtime skeleton, but at this point we give option for both.
-			fmt::MemoryWriter output_raw_skel_filename;
+			std::ostringstream output_raw_skel_filename;
 			output_raw_skel_filename << output_pathname << "/raw-skeleton.ozz";
+			std::string filename = output_raw_skel_filename.str();
 			std::cout << "Outputting raw skeleton to " << output_raw_skel_filename.str() << std::endl;
-			ozz::io::File output_raw_skel_file(output_raw_skel_filename.c_str(), "wb");
+			ozz::io::File output_raw_skel_file(output_raw_skel_filename.str().c_str(), "wb");
 			ozz::io::OArchive raw_skel_archive(&output_raw_skel_file);
 			raw_skel_archive << raw_skel;
 
-			fmt::MemoryWriter output_runtime_skel_filename;
+			std::ostringstream output_runtime_skel_filename;
 			output_runtime_skel_filename << output_pathname << "/runtime-skeleton.ozz";
 			std::cout << "Outputting runtime skeleton to " << output_runtime_skel_filename.str() << std::endl;
-			ozz::io::File output_runtime_skel_file(output_runtime_skel_filename.c_str(), "wb");
+			ozz::io::File output_runtime_skel_file(output_runtime_skel_filename.str().c_str(), "wb");
 			ozz::io::OArchive runtime_skel_archive(&output_runtime_skel_file);
 			runtime_skel_archive << *runtime_skel;
 
 			// This bit of code allows the animation to use the skeleton indices from the ozz skeleton structure.
 			// TODO: Find out if necessary.
-			const char* const* joint_names = runtime_skel->joint_names();
+			ozz::span<const char* const> joint_names = runtime_skel->joint_names();
 			size_t num_joints = runtime_skel->num_joints();
 
 			std::unordered_map<std::string, size_t> joint_indices;
@@ -599,7 +604,7 @@ class loader
 				}
 
 
-				fmt::MemoryWriter output_raw_anim_filename;
+				std::ostringstream output_raw_anim_filename;
 				if (anim_name.empty())
 				{
 					output_raw_anim_filename << output_pathname << "/" << "anim-" << anim_num << "-raw.ozz";
@@ -611,15 +616,15 @@ class loader
 				std::cout << "Outputting raw animation to " << output_raw_anim_filename.str() << std::endl;
 
 
-				ozz::io::File output_raw_anim_file(output_raw_anim_filename.c_str(), "wb");
+				ozz::io::File output_raw_anim_file(output_raw_anim_filename.str().c_str(), "wb");
 				ozz::io::OArchive raw_anim_archive(&output_raw_anim_file);
 				raw_anim_archive << raw_animation;
 
 				ozz::animation::offline::AnimationBuilder builder;
-				ozz::animation::Animation* runtime_animation = builder(raw_animation);
+				std::unique_ptr<ozz::animation::Animation, ozz::Deleter<ozz::animation::Animation>> runtime_animation = builder(raw_animation);
 
 
-				fmt::MemoryWriter output_runtime_anim_filename;
+				std::ostringstream output_runtime_anim_filename;
 				output_runtime_anim_filename << output_pathname << "/";
 				if (anim_name.empty())
 				{
@@ -633,7 +638,7 @@ class loader
 				output_runtime_anim_filename << "-runtime-anim.ozz";
 				std::cout << "Outputting raw animation to " << output_runtime_anim_filename.str() << std::endl;
 
-				ozz::io::File output_runtime_anim_file(output_runtime_anim_filename.c_str(), "wb");
+				ozz::io::File output_runtime_anim_file(output_runtime_anim_filename.str().c_str(), "wb");
 				ozz::io::OArchive runtime_anim_archive(&output_runtime_anim_file);
 				runtime_anim_archive << *runtime_animation;
 
@@ -641,9 +646,9 @@ class loader
 
 				// Mesh save
 				std::cout << "Outputting meshes to " << output_pathname << "/meshes.bin" << std::endl;
-				fmt::MemoryWriter output_mesh_filename;
+				std::ostringstream output_mesh_filename;
 				output_mesh_filename << output_pathname << "/meshes.bin";
-				std::ofstream os(output_mesh_filename.c_str(), std::ios::binary);
+				std::ofstream os(output_mesh_filename.str().c_str(), std::ios::binary);
 				cereal::BinaryOutputArchive archive(os);
 				archive(*this);
 

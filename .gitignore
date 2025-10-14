@@ -1,4 +1,4 @@
-build/*
+**/build/*
 *.sw*
 mesh_importer
 output
