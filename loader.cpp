@@ -390,6 +390,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
           }
         }
       }
+      v.bone_names = {""};
       m.vertices[vert_index] = v;
     }
     meshes[mesh_index] = m;
