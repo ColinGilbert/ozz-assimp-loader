@@ -347,14 +347,16 @@ bool loader::load(const aiScene *scene, const std::string &name) {
   // This bit of code allows the animation to use the skeleton indices from the
   // ozz skeleton structure.
   // TODO: Find out if necessary.
-  ozz::span
-  <const char *const> joint_names = runtime_skel->joint_names();
+  ozz::span<const char *const> joint_names = runtime_skel->joint_names();
   size_t num_joints = runtime_skel->num_joints();
 
+  std::vector<std::string> joint_names_str;
   std::unordered_map<std::string, size_t> joint_indices;
+  
   for (size_t i = 0; i < num_joints; ++i) {
     std::string s = std::string(joint_names[i]);
     joint_indices.insert(std::make_pair(s, i));
+    joint_names_str.push_back(s);
   }
 
   // std::cout << "Displaying ozz skeleton joint names and indices" <<
@@ -368,6 +370,8 @@ bool loader::load(const aiScene *scene, const std::string &name) {
   // indices.
   for (size_t mesh_index = 0; mesh_index < meshes.size(); ++mesh_index) {
     mesh m = meshes[mesh_index];
+    m.bone_names = joint_names_str;
+    std::cout << std::endl;
     for (size_t vert_index = 0; vert_index < m.vertices.size(); ++vert_index) {
       mesh_vertex v = m.vertices[vert_index];
       for (size_t i = 0; i < v.bone_names.size(); ++i) {
@@ -377,8 +381,8 @@ bool loader::load(const aiScene *scene, const std::string &name) {
           auto it = joint_indices.find(s);
           if (it != joint_indices.end()) {
             v.bone_indices[i] = joint_indices.find(s)->second;
-            //std::cout << "Found index " << v.bone_indices[i]
-            //          << " for bone name " << v.bone_names[i] << std::endl;
+            // std::cout << "Found index " << v.bone_indices[i]
+            //           << " for bone name " << v.bone_names[i] << std::endl;
           } else {
             std::cout << "ERROR! Could not find bone index for " << s
                       << " in joint indices map!!!" << std::endl;
