@@ -61,11 +61,10 @@ int main(int argc, char** argv)
 	
 	for (loader::mesh m : _loader.meshes)
 	{
-		std::cout << "Mesh name: " << m.name << std::endl << "Number of indices: " << m.indices.size() << ". Bone names: ";
-
+		std::cout << "Mesh name: " << m.name << std::endl << "Number of vertices: " << m.vertices.size() << std::endl << "Number of indices: " << m.indices.size() << std::endl << "Bones:";
 		for (std::string s : m.bone_names)
 		{
-			std::cout << s << " ";
+			std::cout << " " << s << " ";
 		}
 
 		std::cout << std::endl;
@@ -94,14 +93,14 @@ int main(int argc, char** argv)
 				std::cout << " " << f;
 			}
 			
-			std::cout << ". Bones: ";
+			std::cout << "." << std::endl << "Bones: " << std::endl;
 			for (size_t ii = 0; ii < v.bone_names.size(); ++ii)
 			{
 				std::string s = v.bone_names[ii];
 				//size_t u = static_cast<size_t>(v.bone_indices[ii]);
 				size_t u = v.bone_indices[ii];
 				float f = v.bone_weights[ii];
-				std::cout << " Name = " << s << " Index = " << u << " Weight = " << f << std::endl;
+				std::cout << "  Name = " << s << " Index = " << u << " Weight = " << f << std::endl;
 			}
 			
 			std::cout << std::endl;

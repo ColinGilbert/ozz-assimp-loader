@@ -35,7 +35,8 @@ ozz::animation::offline::RawSkeleton loader::hierarchy::make_raw_skeleton() {
     lemon::ListDigraph::Node r = roots[i];
     ozz::animation::offline::RawSkeleton::Joint &root_joint =
         raw_skeleton.roots[i];
-    std::cout << "Starting recursive build from root " << _name[r] << std::endl;
+    // std::cout << "Starting recursive build from root " << _name[r] <<
+    // std::endl;
     recursive_ozz_helper(r, root_joint, i);
   }
   return raw_skeleton;
@@ -54,6 +55,7 @@ void loader::hierarchy::print_info() {
 
   // recursive_print();
 }
+
 void loader::hierarchy::recursive_ozz_helper(
     const lemon::ListDigraph::Node &n,
     ozz::animation::offline::RawSkeleton::Joint &caller_joint, size_t index) {
@@ -72,8 +74,8 @@ void loader::hierarchy::recursive_ozz_helper(
     children_count++;
   }
 
-  std::cout << "Adding joint to skeleton. Name = " << _name[n]
-            << ", number of children = " << children_count << std::endl;
+  // std::cout << "Adding joint to skeleton. Name = " << _name[n]
+  //          << ", number of children = " << children_count << std::endl;
 
   caller_joint.children.resize(children_count);
 
@@ -89,6 +91,7 @@ void loader::hierarchy::recursive_ozz_helper(
     current_index++;
   }
 }
+
 std::vector<lemon::ListDigraph::Node> loader::hierarchy::find_roots() {
   std::vector<lemon::ListDigraph::Node> roots;
   for (lemon::ListDigraph::NodeIt it(_graph); it != lemon::INVALID; ++it) {
@@ -117,8 +120,8 @@ void loader::hierarchy::recursive_build(
           std::string(current->mChildren[i]->mName.C_Str());
 
       if (bone_names.find(child_name) != bone_names.end()) {
-        std::cout << "Linking parent " << current_node_name << " and child "
-                  << child_name << std::endl;
+        //  std::cout << "Linking parent " << current_node_name << " and child "
+        //          << child_name << std::endl;
         link(current, child);
       }
     }
@@ -174,7 +177,6 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     loader::mesh temp_mesh;
     temp_mesh.name = std::string(mesh_data->mName.C_Str());
     std::cout << "Attempting to obtain data for mesh " << std::endl;
-                             
 
     size_t num_verts = mesh_data->mNumVertices;
     size_t num_faces = mesh_data->mNumFaces;
@@ -182,7 +184,9 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     bool has_normals = mesh_data->HasNormals();
     bool has_texcoords = mesh_data->HasTextureCoords(0);
 
-    std::cout << "Mesh "<< name << " ("<< mesh_num << ") has " << num_verts << " verts and " << num_bones << " bones. Normals? " << has_normals << std::endl;
+    std::cout << "Mesh " << name << " (" << mesh_num << ") has " << num_verts
+              << " verts and " << num_bones << " bones. Normals? "
+              << has_normals << std::endl;
 
     std::array<float, 3> min_extents, max_extents;
 
@@ -259,7 +263,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
         // else
         //{
         //	std::cout << "Vertex ID of Assimp bone higher than actual vertex
-        //count. Skipping." << std::endl;
+        // count. Skipping." << std::endl;
         // }
       }
     }
@@ -269,13 +273,13 @@ bool loader::load(const aiScene *scene, const std::string &name) {
   std::cout << "Total of " << meshes.size() << " meshes in file " << name << "."
             << std::endl;
 
-  for (mesh m : meshes) {
-    std::cout << "Bones for mesh " << m.name << ":";
-    for (std::string s : m.bone_names) {
-      std::cout << " " << s;
-    }
-    std::cout << std::endl;
-  }
+  //   for (mesh m : meshes) {
+  //     std::cout << "Bones for mesh " << m.name << ":";
+  //     for (std::string s : m.bone_names) {
+  //       std::cout << " " << s;
+  //     }
+  //     std::cout << std::endl;
+  //   }
 
   loader::hierarchy bone_hierarchy;
 
@@ -343,7 +347,8 @@ bool loader::load(const aiScene *scene, const std::string &name) {
   // This bit of code allows the animation to use the skeleton indices from the
   // ozz skeleton structure.
   // TODO: Find out if necessary.
-  ozz::span<const char *const> joint_names = runtime_skel->joint_names();
+  ozz::span
+  <const char *const> joint_names = runtime_skel->joint_names();
   size_t num_joints = runtime_skel->num_joints();
 
   std::unordered_map<std::string, size_t> joint_indices;
@@ -352,12 +357,13 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     joint_indices.insert(std::make_pair(s, i));
   }
 
-  std::cout << "Displaying ozz skeleton joint names and indices" << std::endl;
+  // std::cout << "Displaying ozz skeleton joint names and indices" <<
+  // std::endl;
 
-  for (auto it = joint_indices.begin(); it != joint_indices.end(); it++) {
-    std::cout << "Name = " << it->first << ", index = " << it->second
-              << std::endl;
-  }
+  //   for (auto it = joint_indices.begin(); it != joint_indices.end(); it++) {
+  //     std::cout << "Name = " << it->first << ", index = " << it->second
+  //               << std::endl;
+  //   }
   // Now, get the bone names from each vertex and insert the matching bone
   // indices.
   for (size_t mesh_index = 0; mesh_index < meshes.size(); ++mesh_index) {
@@ -371,9 +377,11 @@ bool loader::load(const aiScene *scene, const std::string &name) {
           auto it = joint_indices.find(s);
           if (it != joint_indices.end()) {
             v.bone_indices[i] = joint_indices.find(s)->second;
-            //std::cout << "Found index " << v.bone_indices[i] << " for bone name " << v.bone_names[i] << std::endl;
+            //std::cout << "Found index " << v.bone_indices[i]
+            //          << " for bone name " << v.bone_names[i] << std::endl;
           } else {
-            std::cout << "ERROR! Could not find bone index for " << s << " in joint indices map!!!" << std::endl;
+            std::cout << "ERROR! Could not find bone index for " << s
+                      << " in joint indices map!!!" << std::endl;
             return false;
           }
         }
@@ -418,12 +426,13 @@ bool loader::load(const aiScene *scene, const std::string &name) {
         size_t anim_node_skeleton_index = it->second;
         valid_channels.insert(
             std::make_tuple(anim_node_skeleton_index, anim_node));
-        std::cout << "Found node " << anim_node_name << " for animation track "
-                  << num << "." << std::endl;
+        // std::cout << "Found node " << anim_node_name << " for animation track
+        // "
+        //          << num << "." << std::endl;
       } else {
-        std::cout << "Could not find node " << anim_node_name
-                  << " required to build animation track " << num
-                  << ". Skipping." << std::endl;
+        // std::cout << "Could not find node " << anim_node_name
+        //          << " required to build animation track " << num
+        //          << ". Skipping." << std::endl;
         continue;
       }
     }
@@ -437,18 +446,19 @@ bool loader::load(const aiScene *scene, const std::string &name) {
       size_t num_rotations = anim_node->mNumRotationKeys;
       size_t num_scales = anim_node->mNumScalingKeys;
 
-      std::cout << "Bone " << anim_node->mNodeName.C_Str()
-                << ", skeleton index " << track_index << " - Inserting "
-                << num_translations << " translations, " << num_rotations
-                << " rotations, " << num_scales << " scales." << std::endl;
+      // std::cout << "Bone " << anim_node->mNodeName.C_Str()
+      //           << ", skeleton index " << track_index << " - Inserting "
+      //           << num_translations << " translations, " << num_rotations
+      //           << " rotations, " << num_scales << " scales." << std::endl;
 
       for (size_t i = 0; i < num_translations; ++i) {
-        std::cout << "Inserting translation num " << i << ": ";
+        // std::cout << "Inserting translation num " << i << ": ";
         aiVectorKey k = anim_node->mPositionKeys[i];
         double t = k.mTime;
         aiVector3D val = k.mValue;
-        std::cout << " time = " << t << ", (" << val.x << ", " << val.y << ", "
-                  << val.z << ")" << std::endl;
+        // std::cout << " time = " << t << ", (" << val.x << ", " << val.y << ",
+        // "
+        //          << val.z << ")" << std::endl;
         const ozz::animation::offline::RawAnimation::TranslationKey trans_key =
             {static_cast<float>(t),
              ozz::math::Float3(static_cast<float>(val.x),
@@ -457,12 +467,13 @@ bool loader::load(const aiScene *scene, const std::string &name) {
         raw_animation.tracks[track_index].translations.push_back(trans_key);
       }
       for (size_t i = 0; i < num_rotations; ++i) {
-        std::cout << "Inserting rotation num " << i << ": ";
+        // // std::cout << "Inserting rotation num " << i << ": ";
         aiQuatKey k = anim_node->mRotationKeys[i];
         double t = k.mTime;
         aiQuaternion val = k.mValue;
-        std::cout << " time = " << t << ", (" << val.x << ", " << val.y << ", "
-                  << val.z << ", " << val.w << ")" << std::endl;
+        // std::cout << " time = " << t << ", (" << val.x << ", " << val.y << ",
+        // "
+        //          << val.z << ", " << val.w << ")" << std::endl;
 
         const ozz::animation::offline::RawAnimation::RotationKey rot_key = {
             static_cast<float>(t),
@@ -472,12 +483,13 @@ bool loader::load(const aiScene *scene, const std::string &name) {
         raw_animation.tracks[track_index].rotations.push_back(rot_key);
       }
       for (size_t i = 0; i < num_scales; ++i) {
-        std::cout << "Inserting scale num " << i << std::endl;
+        // std::cout << "Inserting scale num " << i << std::endl;
         aiVectorKey k = anim_node->mScalingKeys[i];
         double t = k.mTime;
         aiVector3D val = k.mValue;
-        std::cout << " time = " << t << ", (" << val.x << ", " << val.y << ", "
-                  << val.z << ")" << std::endl;
+        // std::cout << " time = " << t << ", (" << val.x << ", " << val.y << ",
+        // "
+        //          << val.z << ")" << std::endl;
         const ozz::animation::offline::RawAnimation::ScaleKey scale_key = {
             static_cast<float>(t),
             ozz::math::Float3(static_cast<float>(val.x),
