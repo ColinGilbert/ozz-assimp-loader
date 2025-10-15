@@ -599,7 +599,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
   const auto array = output_stream.getArray();
   auto iter = array.begin();
   std::ofstream fstream;
-  fstream.open(output_pathname + "/mesh.bin", std::ofstream::binary);
+  fstream.open(output_pathname + "/meshes.bin", std::ofstream::binary);
   while (iter != array.end()) {
     fstream << *iter;
     ++iter;
