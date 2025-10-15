@@ -61,10 +61,11 @@ int main(int argc, char** argv)
 	
 	for (loader::mesh m : _loader.meshes)
 	{
-		std::cout << "Mesh name: " << m.name << std::endl << "Number of vertices: " << m.vertices.size() << std::endl << "Number of indices: " << m.indices.size() << std::endl << "Bones:";
+		std::cout << "Mesh name: " << m.name << std::endl << "Number of vertices: " << m.vertices.size() << std::endl << "Number of indices: " << m.indices.size() << std::endl << "Bones: ";
+		size_t index = 0;
 		for (std::string s : m.bone_names)
 		{
-			std::cout << " " << s << " ";
+			std::cout << "(index: " << index << ", name: " << s << ") ";
 		}
 
 		std::cout << std::endl;

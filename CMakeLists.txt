@@ -9,6 +9,5 @@ find_package(Boost COMPONENTS system filesystem REQUIRED)
 add_executable(mesh_importer main.cpp loader.cpp)
 target_link_libraries(mesh_importer  ozz_animation ozz_animation_offline ozz_geometry ozz_base assimp lemon ${Boost_LIBRARIES})
 
-project(test_mesh_output)
-include_directories(libs/cereal/include)
-add_executable(test_mesh_output test_mesh_output.cpp)
+#project(test_mesh_output)
+#add_executable(test_mesh_output test_mesh_output.cpp)

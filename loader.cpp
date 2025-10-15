@@ -426,7 +426,6 @@ bool loader::load(const aiScene *scene, const std::string &name) {
       aiNodeAnim *anim_node = anim->mChannels[num];
       std::string anim_node_name = std::string(anim_node->mNodeName.C_Str());
       auto it = joint_indices.find(anim_node_name);
-
       if (it != joint_indices.end()) {
         size_t anim_node_skeleton_index = it->second;
         valid_channels.insert(
@@ -554,8 +553,8 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     std::ostringstream output_mesh_filename;
     output_mesh_filename << output_pathname << "/meshes.bin";
     std::ofstream os(output_mesh_filename.str().c_str(), std::ios::binary);
-    cereal::BinaryOutputArchive archive(os);
-    archive(*this);
+    // cereal::BinaryOutputArchive archive(os);
+    // archive(*this);
   }
 
   return true;
