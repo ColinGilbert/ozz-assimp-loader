@@ -1,112 +1,92 @@
 #include <fstream>
-
-#include <cereal/types/string.hpp>
-#include <cereal/types/array.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/set.hpp>
-#include <cereal/archives/binary.hpp>
 #include <iostream>
+#include <iterator>
 
-class loader
-{
-	public:
-		template <class Archive>
-			void serialize(Archive& ar)
-			{
-				ar(meshes);
-			}
+#include <capnp/message.h>
+#include <capnp/serialize-packed.h>
+#include <cstdio>
+#include <cstdlib>
+#include <kj/array.h>
+#include <kj/async.h>
+#include <kj/io.h>
+#include <kj/memory.h>
+#include <memory>
+#include <vector>
 
-		struct mesh_vertex
-		{
-			template <class Archive>
-				void serialize( Archive & ar )
-				{
-					ar(position, normal, uv, bone_names, bone_indices, bone_weights);
-				}
-			mesh_vertex() : position( {0.0f, 0.0f, 0.0f }), normal({ 0.0f, 0.0f, 0.0f }), uv({ 0.0f, 0.0f} ), bone_names({ "", "", "", "" }), bone_indices({ 0, 0, 0, 0 }), bone_weights({ 0.0f, 0.0f, 0.0f, 0.0f}) {}
-			std::array<float, 3> position, normal;
-			std::array<float, 2> uv;
-			std::array<std::string, 4> bone_names;
-			std::array<size_t, 4> bone_indices;
-			std::array<float, 4> bone_weights;
-		};
+#include "model3d_schema.capnp.h"
 
-		struct mesh
-		{
-			template <class Archive>
-				void serialize(Archive & ar)
-				{
-					ar(translation, scale, dimensions, rotation, name, vertices, indices, bone_names);
-				}
-			std::array<float, 3> translation, scale, dimensions;
-			std::array<float, 4> rotation;
-			std::string name;
-			std::vector<mesh_vertex> vertices;
-			std::vector<uint32_t> indices;
-			std::vector<std::string> bone_names;
-		};
+int main(int argc, char **argv) {
+  std::string mesh_filename = "./output/seymour.dae/meshes.bin";
+  std::ifstream file;
+  std::vector<unsigned char> chars;
 
-		std::vector<loader::mesh> meshes;
-};
+  file.open(mesh_filename, std::ios::binary);
+  std::copy(std::istream_iterator<unsigned char>(file),
+            std::istream_iterator<unsigned char>(), std::back_inserter(chars));
+  file.close();
+  std::cout << "Filesize: " << chars.size() << std::endl;
+  std::cout << "Buffering to kj arrayptr" << std::endl;
 
+  //   kj::ArrayPtr<const unsigned char> kjchars =
+  //       kj::arrayPtr(chars.data(), chars.size() / sizeof(unsigned char));
+  //   std::cout << "Buffering to kj arrayinputstream" << std::endl;
 
-int main(int argc, char** argv)
-{
-	loader _loader;
+  kj::ArrayPtr<kj::byte> kjchars(
+      reinterpret_cast<kj::byte *>(const_cast<unsigned char *>(&chars[0])),
+      chars.size() / sizeof(unsigned char));
 
-	std::string mesh_filename= "./output/seymour.dae/meshes.bin";
-	std::ifstream is(mesh_filename.c_str(), std::ios::binary);
-	cereal::BinaryInputArchive archive(is);
-	archive(_loader);
-	
-	for (loader::mesh m : _loader.meshes)
-	{
-		std::cout << "Mesh name: " << m.name << std::endl << "Number of vertices: " << m.vertices.size() << std::endl << "Number of indices: " << m.indices.size() << std::endl << "Bones: ";
-		size_t index = 0;
-		for (std::string s : m.bone_names)
-		{
-			std::cout << "(index: " << index << ", name: " << s << ") ";
-		}
+  kj::ArrayInputStream buffer(kjchars);
+  std::cout << "Creating messagereader" << std::endl;
 
-		std::cout << std::endl;
+  capnp::ReaderOptions options;
+  options.traversalLimitInWords = 2000 * 1024 * 1024;
 
-		std::cout << "Displaying vertex info:" << std::endl;
+  capnp::PackedMessageReader message(buffer, options);
+  std::cout << "Getting root node" << std::endl;
+  Model::Reader model = message.getRoot<Model>();
+  std::cout << "Got root node" << std::endl;
 
-		for (size_t i = 0; i < m.vertices.size(); ++i)
-		{
-			loader::mesh_vertex v = m.vertices[i];
-			
-			std::cout << "Mesh vertex " << i << ": Position =";
-			for (float f : v.position)
-			{
-				std::cout << " " << f;
-			}
+  capnp::List<Mesh>::Reader meshes = model.getMeshes();
+  std::cout << "Got meshes" << std::endl;
 
-			std::cout << ". Normal =";
-			for (float f : v.normal)
-			{
-				std::cout << " " << f;
-			}
-			
-			std::cout << ". UV =";
-			for (float f : v.uv)
-			{
-				std::cout << " " << f;
-			}
-			
-			std::cout << "." << std::endl << "Bones: " << std::endl;
-			for (size_t ii = 0; ii < v.bone_names.size(); ++ii)
-			{
-				std::string s = v.bone_names[ii];
-				//size_t u = static_cast<size_t>(v.bone_indices[ii]);
-				size_t u = v.bone_indices[ii];
-				float f = v.bone_weights[ii];
-				std::cout << "  Name = " << s << " Index = " << u << " Weight = " << f << std::endl;
-			}
-			
-			std::cout << std::endl;
-		}
-	}
+  for (auto m : meshes) {
+    const std::string name = m.getName();
+    auto vertices = m.getVertices();
+    auto indices = m.getIndices();
+    std::cout << "Mesh name: " << name << std::endl
+              << "Number of vertices: " << vertices.size() << std::endl
+              << "Number of indices: " << indices.size() << std::endl
+              << "Bones: ";
+    size_t index = 0;
+    for (std::string s : m.getBoneNames()) {
+      std::cout << "(index: " << index << ", name: " << s << ") ";
+    }
 
-	return 0;
+    std::cout << std::endl;
+
+    std::cout << "Displaying vertex info:" << std::endl;
+
+    size_t i = 0;
+    for (auto v : vertices) {
+      std::cout << "Mesh vertex " << i << ": Position =";
+      std::cout << " " << v.getPositionX() << " " << v.getPositionY() << " "
+                << v.getPositionZ();
+      std::cout << ". Normal =";
+      std::cout << " " << v.getNormalX() << " " << v.getNormalY() << " "
+                << v.getNormalZ();
+      std::cout << ". UV =";
+      std::cout << " " << v.getUvX() << " " << v.getUvY();
+      std::cout << "." << std::endl << "Bones: " << std::endl;
+      std::cout << " Indices = " << v.getBoneIndexX() << ","
+                << v.getBoneIndexY() << "," << v.getBoneIndexZ() << ","
+                << v.getBoneIndexW() << std::endl;
+      std::cout << " Weights = " << v.getBoneWeightX() << ","
+                << v.getBoneWeightY() << "," << v.getBoneWeightZ() << ","
+                << v.getBoneWeightW() << std::endl;
+      ++i;
+    }
+
+    std::cout << std::endl;
+  }
+  return 0;
 }

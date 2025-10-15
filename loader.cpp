@@ -12,6 +12,7 @@
 #include <kj/io.h>
 
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 
 #include "model3d_schema.capnp.h"
@@ -151,6 +152,7 @@ lemon::ListDigraph::Node loader::hierarchy::add(aiNode *assimp_node) {
   aiMatrix4x4 mat = assimp_node->mTransformation;
   aiVector3D scale, trans;
   aiQuaternion rot;
+
   mat.Decompose(scale, rot, trans);
 
   lemon::ListDigraph::Node graph_node = _graph.addNode();
@@ -406,140 +408,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     meshes[mesh_index] = m;
   }
 
-  /*
-
-  class Mesh::Builder {
-
-  inline float getTranslationX();
-  inline void setTranslationX(float value);
-
-  inline float getTranslationY();
-  inline void setTranslationY(float value);
-
-  inline float getTranslationZ();
-  inline void setTranslationZ(float value);
-
-  inline float getScaleX();
-  inline void setScaleX(float value);
-
-  inline float getScaleY();
-  inline void setScaleY(float value);
-
-  inline float getScaleZ();
-  inline void setScaleZ(float value);
-
-  inline float getDimensionsX();
-  inline void setDimensionsX(float value);
-
-  inline float getDimensionsY();
-  inline void setDimensionsY(float value);
-
-  inline float getDimensionsZ();
-  inline void setDimensionsZ(float value);
-
-  inline float getRotationX();
-  inline void setRotationX(float value);
-
-  inline float getRotationY();
-  inline void setRotationY(float value);
-
-  inline float getRotationZ();
-  inline void setRotationZ(float value);
-
-  inline float getRotationW();
-  inline void setRotationW(float value);
-
-  inline bool hasName();
-  inline  ::capnp::Text::Builder getName();
-  inline void setName( ::capnp::Text::Reader value);
-  inline  ::capnp::Text::Builder initName(unsigned int size);
-  inline void adoptName(::capnp::Orphan< ::capnp::Text>&& value);
-  inline ::capnp::Orphan< ::capnp::Text> disownName();
-
-  inline bool hasVertices();
-  inline  ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Builder
-  getVertices(); inline void setVertices( ::capnp::List< ::MeshVertex,
-  ::capnp::Kind::STRUCT>::Reader value); inline  ::capnp::List< ::MeshVertex,
-  ::capnp::Kind::STRUCT>::Builder initVertices(unsigned int size); inline void
-  adoptVertices(::capnp::Orphan< ::capnp::List< ::MeshVertex,
-  ::capnp::Kind::STRUCT>>&& value); inline ::capnp::Orphan< ::capnp::List<
-  ::MeshVertex,  ::capnp::Kind::STRUCT>> disownVertices();
-
-  inline bool hasIndices();
-  inline  ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Builder
-  getIndices(); inline void setIndices( ::capnp::List< ::uint64_t,
-  ::capnp::Kind::PRIMITIVE>::Reader value); inline void
-  setIndices(::kj::ArrayPtr<const  ::uint64_t> value); inline  ::capnp::List<
-  ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Builder initIndices(unsigned int
-  size); inline void adoptIndices(::capnp::Orphan< ::capnp::List< ::uint64_t,
-  ::capnp::Kind::PRIMITIVE>>&& value); inline ::capnp::Orphan< ::capnp::List<
-  ::uint64_t,  ::capnp::Kind::PRIMITIVE>> disownIndices();
-
-  inline bool hasBoneNames();
-  inline  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Builder
-  getBoneNames(); inline void setBoneNames( ::capnp::List< ::capnp::Text,
-  ::capnp::Kind::BLOB>::Reader value); inline void
-  setBoneNames(::kj::ArrayPtr<const  ::capnp::Text::Reader> value); inline
-  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Builder
-  initBoneNames(unsigned int size); inline void adoptBoneNames(::capnp::Orphan<
-  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>>&& value); inline
-  ::capnp::Orphan< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>>
-  disownBoneNames();
-
-
-
-
-  class MeshVertex::Builder {
-
-  inline float getPositionX();
-  inline void setPositionX(float value);
-
-  inline float getPositionY();
-  inline void setPositionY(float value);
-
-  inline float getPositionZ();
-  inline void setPositionZ(float value);
-
-  inline float getNormalX();
-  inline void setNormalX(float value);
-
-  inline float getNormalY();
-  inline void setNormalY(float value);
-
-  inline float getNormalZ();
-  inline void setNormalZ(float value);
-
-  inline float getUvX();
-  inline void setUvX(float value);
-
-  inline float getUvY();
-  inline void setUvY(float value);
-
-  inline  ::uint32_t getBoneIndexX();
-  inline void setBoneIndexX( ::uint32_t value);
-
-  inline  ::uint32_t getBoneIndexY();
-  inline void setBoneIndexY( ::uint32_t value);
-
-  inline  ::uint32_t getBoneIndexZ();
-  inline void setBoneIndexZ( ::uint32_t value);
-
-  inline  ::uint32_t getBoneIndexW();
-  inline void setBoneIndexW( ::uint32_t value);
-
-  inline float getBoneWeightX();
-  inline void setBoneWeightX(float value);
-
-  inline float getBoneWweightY();
-  inline void setBoneWweightY(float value);
-
-  inline float getBoneWeightZ();
-  inline void setBoneWeightZ(float value);
-
-  inline float getBoneWeightW();
-  inline void setBoneWeightW(float value);
-
-  */
+  // Now we create the mesh buffer in capnproto
   capnp::MallocMessageBuilder message;
   Model::Builder model_output = message.initRoot<Model>();
   capnp::List<Mesh>::Builder meshes_output =
@@ -564,8 +433,8 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     capnp::List<MeshVertex>::Builder verts =
         m.initVertices(meshes[i].vertices.size());
     for (size_t j = 0; j < meshes[i].vertices.size(); ++j) {
-      MeshVertex::Builder v = verts[i];
-      v.setPositionX(meshes[i].vertices[j].position[0]);
+      MeshVertex::Builder v = verts[j];
+      verts[i].setPositionX(meshes[i].vertices[j].position[0]);
       v.setPositionY(meshes[i].vertices[j].position[1]);
       v.setPositionZ(meshes[i].vertices[j].position[2]);
       v.setNormalX(meshes[i].vertices[j].normal[0]);
@@ -585,12 +454,14 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     capnp::List<size_t>::Builder indices =
         m.initIndices(meshes[i].indices.size());
     for (size_t j = 0; j < meshes[i].indices.size(); ++j) {
-        m.getIndices().set(j, meshes[i].indices[j]);
+      m.getIndices().set(j, meshes[i].indices[j]);
     }
     capnp::List<capnp::Text>::Builder bone_names =
         m.initBoneNames(meshes[i].bone_names.size());
+    for (size_t j = 0; j < meshes[i].bone_names.size(); ++j) {
+      m.getBoneNames().set(j, meshes[i].bone_names[j]);
+    }
   }
-
 
   kj::VectorOutputStream output_stream;
   // And write our mesage to the output stream
@@ -598,23 +469,22 @@ bool loader::load(const aiScene *scene, const std::string &name) {
 
   const auto array = output_stream.getArray();
   auto iter = array.begin();
-  std::ofstream fstream;
-  fstream.open(output_pathname + "/meshes.bin", std::ofstream::binary);
+  std::cout << "Message size: " << array.size() << std::endl;
+  std::vector<char> buffer;
   while (iter != array.end()) {
-    fstream << *iter;
+    buffer.push_back(*iter);
     ++iter;
   }
-  fstream.close();
-  //std::cout << std::slice(array[0], array.size()*sizeof(unsigned char));
-  // std::cout << std:slice(array[0]array.);
 
-  //const auto flat = capnp::messageToFlatArray(message);
-  //std;:cout << flat;
-  // kj::ArrayPtr<kj::byte> serialized_data = output_stream.getArray();
-  // std::ofstream outputFile;
-  // outputFile.open("mesh.serial");
-  // outputFile << serialized_data.slice(0, serialized_data.size());
-  // outputFile.close();
+  std::ofstream output_file;
+  output_file.open(output_pathname + "/meshes.bin", std::ios::binary);
+  for (unsigned char c : buffer) {
+    output_file.put(c);
+  }
+
+  std::cout << "Buffer size: " << buffer.size() << std::endl;
+
+  output_file.close();
 
   std::vector<ozz::animation::offline::RawAnimation> raw_animations;
 
@@ -766,15 +636,6 @@ bool loader::load(const aiScene *scene, const std::string &name) {
         output_runtime_anim_filename.str().c_str(), "wb");
     ozz::io::OArchive runtime_anim_archive(&output_runtime_anim_file);
     runtime_anim_archive << *runtime_animation;
-
-    // Mesh save
-    std::cout << "Outputting meshes to " << output_pathname << "/meshes.bin"
-              << std::endl;
-    std::ostringstream output_mesh_filename;
-    output_mesh_filename << output_pathname << "/meshes.bin";
-    std::ofstream os(output_mesh_filename.str().c_str(), std::ios::binary);
-    // cereal::BinaryOutputArchive archive(os);
-    // archive(*this);
   }
 
   return true;
