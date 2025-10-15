@@ -6,6 +6,8 @@
 #include <ozz/animation/runtime/animation.h>
 #include <ozz/animation/runtime/skeleton.h>
 
+#include "schema.capnp.h"
+
 void loader::hierarchy::init(const aiScene *scene,
                              const std::set<std::string> &bone_names) {
   for (std::string s : bone_names) {
