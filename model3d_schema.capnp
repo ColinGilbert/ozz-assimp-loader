@@ -34,7 +34,7 @@ struct MeshVertex {
 	boneIndexZ @10 :UInt32;
     boneIndexW @11 :UInt32;
     boneWeightX @12 :Float32;
-    boneWweightY @13 :Float32;
+    boneWeightY @13 :Float32;
     boneWeightZ @14 :Float32;
     boneWeightW @15 :Float32;
 }

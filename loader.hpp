@@ -22,12 +22,6 @@
 
 #include <boost/filesystem.hpp>
 
-#include <cereal/types/string.hpp>
-#include <cereal/types/array.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/set.hpp>
-#include <cereal/archives/binary.hpp>
-
 
 #include <map>
 #include <memory>
@@ -39,11 +33,6 @@ class loader
 	public:
 		struct mesh_vertex
 		{
-			template <class Archive>
-				void serialize( Archive & ar )
-				{
-					ar(position, normal, uv, bone_names, bone_indices, bone_weights);
-				}
 			mesh_vertex() : position( {0.0f, 0.0f, 0.0f }), normal({ 0.0f, 0.0f, 0.0f }), uv({ 0.0f, 0.0f} ), bone_names({ "", "", "", "" }), bone_indices({0, 0, 0, 0}), bone_weights({ 0.0f, 0.0f, 0.0f, 0.0f} ) {}
 			std::array<float, 3> position, normal;
 			std::array<float, 2> uv;
@@ -54,11 +43,6 @@ class loader
 
 		struct mesh
 		{
-			template <class Archive>
-				void serialize(Archive & ar)
-				{
-					ar(translation, scale, dimensions, rotation, name, vertices, indices, bone_names);
-				}
 			std::array<float, 3> translation, scale, dimensions;
 			std::array<float, 4> rotation;
 			std::string name;
@@ -66,12 +50,6 @@ class loader
 			std::vector<uint32_t> indices;
 			std::vector<std::string> bone_names;
 		};
-
-		template <class Archive>
-			void serialize(Archive& ar)
-			{
-				ar(meshes);
-			}
 
 		class hierarchy
 		{

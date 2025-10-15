@@ -294,7 +294,7 @@ public:
 
   inline float getBoneWeightX() const;
 
-  inline float getBoneWweightY() const;
+  inline float getBoneWeightY() const;
 
   inline float getBoneWeightZ() const;
 
@@ -367,8 +367,8 @@ public:
   inline float getBoneWeightX();
   inline void setBoneWeightX(float value);
 
-  inline float getBoneWweightY();
-  inline void setBoneWweightY(float value);
+  inline float getBoneWeightY();
+  inline void setBoneWeightY(float value);
 
   inline float getBoneWeightZ();
   inline void setBoneWeightZ(float value);
@@ -993,16 +993,16 @@ inline void MeshVertex::Builder::setBoneWeightX(float value) {
       ::capnp::bounded<12>() * ::capnp::ELEMENTS, value);
 }
 
-inline float MeshVertex::Reader::getBoneWweightY() const {
+inline float MeshVertex::Reader::getBoneWeightY() const {
   return _reader.getDataField<float>(
       ::capnp::bounded<13>() * ::capnp::ELEMENTS);
 }
 
-inline float MeshVertex::Builder::getBoneWweightY() {
+inline float MeshVertex::Builder::getBoneWeightY() {
   return _builder.getDataField<float>(
       ::capnp::bounded<13>() * ::capnp::ELEMENTS);
 }
-inline void MeshVertex::Builder::setBoneWweightY(float value) {
+inline void MeshVertex::Builder::setBoneWeightY(float value) {
   _builder.setDataField<float>(
       ::capnp::bounded<13>() * ::capnp::ELEMENTS, value);
 }

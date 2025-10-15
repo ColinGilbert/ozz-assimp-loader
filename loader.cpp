@@ -8,6 +8,11 @@
 
 #include <capnp/message.h>
 #include <capnp/serialize-packed.h>
+#include <kj/array.h>
+#include <kj/io.h>
+
+#include <filesystem>
+#include <iostream>
 
 #include "model3d_schema.capnp.h"
 
@@ -275,8 +280,6 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     meshes.push_back(temp_mesh);
   }
 
-
-
   std::cout << "Total of " << meshes.size() << " meshes in file " << name << "."
             << std::endl;
 
@@ -359,7 +362,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
 
   std::vector<std::string> joint_names_str;
   std::unordered_map<std::string, size_t> joint_indices;
-  
+
   for (size_t i = 0; i < num_joints; ++i) {
     std::string s = std::string(joint_names[i]);
     joint_indices.insert(std::make_pair(s, i));
@@ -454,27 +457,34 @@ bool loader::load(const aiScene *scene, const std::string &name) {
   inline ::capnp::Orphan< ::capnp::Text> disownName();
 
   inline bool hasVertices();
-  inline  ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Builder getVertices();
-  inline void setVertices( ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Reader value);
-  inline  ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Builder initVertices(unsigned int size);
-  inline void adoptVertices(::capnp::Orphan< ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>>&& value);
-  inline ::capnp::Orphan< ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>> disownVertices();
+  inline  ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Builder
+  getVertices(); inline void setVertices( ::capnp::List< ::MeshVertex,
+  ::capnp::Kind::STRUCT>::Reader value); inline  ::capnp::List< ::MeshVertex,
+  ::capnp::Kind::STRUCT>::Builder initVertices(unsigned int size); inline void
+  adoptVertices(::capnp::Orphan< ::capnp::List< ::MeshVertex,
+  ::capnp::Kind::STRUCT>>&& value); inline ::capnp::Orphan< ::capnp::List<
+  ::MeshVertex,  ::capnp::Kind::STRUCT>> disownVertices();
 
   inline bool hasIndices();
-  inline  ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Builder getIndices();
-  inline void setIndices( ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Reader value);
-  inline void setIndices(::kj::ArrayPtr<const  ::uint64_t> value);
-  inline  ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Builder initIndices(unsigned int size);
-  inline void adoptIndices(::capnp::Orphan< ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>>&& value);
-  inline ::capnp::Orphan< ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>> disownIndices();
+  inline  ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Builder
+  getIndices(); inline void setIndices( ::capnp::List< ::uint64_t,
+  ::capnp::Kind::PRIMITIVE>::Reader value); inline void
+  setIndices(::kj::ArrayPtr<const  ::uint64_t> value); inline  ::capnp::List<
+  ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Builder initIndices(unsigned int
+  size); inline void adoptIndices(::capnp::Orphan< ::capnp::List< ::uint64_t,
+  ::capnp::Kind::PRIMITIVE>>&& value); inline ::capnp::Orphan< ::capnp::List<
+  ::uint64_t,  ::capnp::Kind::PRIMITIVE>> disownIndices();
 
   inline bool hasBoneNames();
-  inline  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Builder getBoneNames();
-  inline void setBoneNames( ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Reader value);
-  inline void setBoneNames(::kj::ArrayPtr<const  ::capnp::Text::Reader> value);
-  inline  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Builder initBoneNames(unsigned int size);
-  inline void adoptBoneNames(::capnp::Orphan< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>>&& value);
-  inline ::capnp::Orphan< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>> disownBoneNames();
+  inline  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Builder
+  getBoneNames(); inline void setBoneNames( ::capnp::List< ::capnp::Text,
+  ::capnp::Kind::BLOB>::Reader value); inline void
+  setBoneNames(::kj::ArrayPtr<const  ::capnp::Text::Reader> value); inline
+  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Builder
+  initBoneNames(unsigned int size); inline void adoptBoneNames(::capnp::Orphan<
+  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>>&& value); inline
+  ::capnp::Orphan< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>>
+  disownBoneNames();
 
 
 
@@ -528,13 +538,83 @@ bool loader::load(const aiScene *scene, const std::string &name) {
 
   inline float getBoneWeightW();
   inline void setBoneWeightW(float value);
-  
+
   */
   capnp::MallocMessageBuilder message;
-  for (auto m : meshes) {
+  Model::Builder model_output = message.initRoot<Model>();
+  capnp::List<Mesh>::Builder meshes_output =
+      model_output.initMeshes(meshes.size());
 
+  for (size_t i = 0; i < meshes.size(); ++i) {
+    Mesh::Builder m = meshes_output[i];
+    m.setTranslationX(meshes[i].translation[0]);
+    m.setTranslationY(meshes[i].translation[1]);
+    m.setTranslationZ(meshes[i].translation[2]);
+    m.setScaleX(meshes[i].scale[0]);
+    m.setScaleY(meshes[i].scale[1]);
+    m.setScaleZ(meshes[i].scale[2]);
+    m.setDimensionsX(meshes[i].dimensions[0]);
+    m.setDimensionsY(meshes[i].dimensions[1]);
+    m.setDimensionsZ(meshes[i].dimensions[2]);
+    m.setRotationX(meshes[i].rotation[0]);
+    m.setRotationY(meshes[i].rotation[1]);
+    m.setRotationZ(meshes[i].rotation[2]);
+    m.setRotationW(meshes[i].rotation[3]);
+    m.setName(meshes[i].name);
+    capnp::List<MeshVertex>::Builder verts =
+        m.initVertices(meshes[i].vertices.size());
+    for (size_t j = 0; j < meshes[i].vertices.size(); ++j) {
+      MeshVertex::Builder v = verts[i];
+      v.setPositionX(meshes[i].vertices[j].position[0]);
+      v.setPositionY(meshes[i].vertices[j].position[1]);
+      v.setPositionZ(meshes[i].vertices[j].position[2]);
+      v.setNormalX(meshes[i].vertices[j].normal[0]);
+      v.setNormalY(meshes[i].vertices[j].normal[1]);
+      v.setNormalZ(meshes[i].vertices[j].normal[2]);
+      v.setUvX(meshes[i].vertices[j].uv[0]);
+      v.setUvY(meshes[i].vertices[j].uv[1]);
+      v.setBoneIndexX(meshes[i].vertices[j].bone_indices[0]);
+      v.setBoneIndexY(meshes[i].vertices[j].bone_indices[1]);
+      v.setBoneIndexZ(meshes[i].vertices[j].bone_indices[2]);
+      v.setBoneIndexW(meshes[i].vertices[j].bone_indices[3]);
+      v.setBoneWeightX(meshes[i].vertices[j].bone_weights[0]);
+      v.setBoneWeightY(meshes[i].vertices[j].bone_weights[1]);
+      v.setBoneWeightZ(meshes[i].vertices[j].bone_weights[2]);
+      v.setBoneWeightW(meshes[i].vertices[j].bone_weights[3]);
+    }
+    capnp::List<size_t>::Builder indices =
+        m.initIndices(meshes[i].indices.size());
+    for (size_t j = 0; j < meshes[i].indices.size(); ++j) {
+        m.getIndices().set(j, meshes[i].indices[j]);
+    }
+    capnp::List<capnp::Text>::Builder bone_names =
+        m.initBoneNames(meshes[i].bone_names.size());
   }
 
+
+  kj::VectorOutputStream output_stream;
+  // And write our mesage to the output stream
+  capnp::writePackedMessage(output_stream, message);
+
+  const auto array = output_stream.getArray();
+  auto iter = array.begin();
+  std::ofstream fstream;
+  fstream.open(output_pathname + "/mesh.bin", std::ofstream::binary);
+  while (iter != array.end()) {
+    fstream << *iter;
+    ++iter;
+  }
+  fstream.close();
+  //std::cout << std::slice(array[0], array.size()*sizeof(unsigned char));
+  // std::cout << std:slice(array[0]array.);
+
+  //const auto flat = capnp::messageToFlatArray(message);
+  //std;:cout << flat;
+  // kj::ArrayPtr<kj::byte> serialized_data = output_stream.getArray();
+  // std::ofstream outputFile;
+  // outputFile.open("mesh.serial");
+  // outputFile << serialized_data.slice(0, serialized_data.size());
+  // outputFile.close();
 
   std::vector<ozz::animation::offline::RawAnimation> raw_animations;
 
