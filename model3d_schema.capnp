@@ -38,3 +38,7 @@ struct MeshVertex {
     boneWeightZ @14 :Float32;
     boneWeightW @15 :Float32;
 }
+
+struct Model {
+	meshes @0: List(Mesh);
+}

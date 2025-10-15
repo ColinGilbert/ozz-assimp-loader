@@ -6,7 +6,10 @@
 #include <ozz/animation/runtime/animation.h>
 #include <ozz/animation/runtime/skeleton.h>
 
-#include "schema.capnp.h"
+#include <capnp/message.h>
+#include <capnp/serialize-packed.h>
+
+#include "model3d_schema.capnp.h"
 
 void loader::hierarchy::init(const aiScene *scene,
                              const std::set<std::string> &bone_names) {
@@ -272,6 +275,8 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     meshes.push_back(temp_mesh);
   }
 
+
+
   std::cout << "Total of " << meshes.size() << " meshes in file " << name << "."
             << std::endl;
 
@@ -397,6 +402,139 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     }
     meshes[mesh_index] = m;
   }
+
+  /*
+
+  class Mesh::Builder {
+
+  inline float getTranslationX();
+  inline void setTranslationX(float value);
+
+  inline float getTranslationY();
+  inline void setTranslationY(float value);
+
+  inline float getTranslationZ();
+  inline void setTranslationZ(float value);
+
+  inline float getScaleX();
+  inline void setScaleX(float value);
+
+  inline float getScaleY();
+  inline void setScaleY(float value);
+
+  inline float getScaleZ();
+  inline void setScaleZ(float value);
+
+  inline float getDimensionsX();
+  inline void setDimensionsX(float value);
+
+  inline float getDimensionsY();
+  inline void setDimensionsY(float value);
+
+  inline float getDimensionsZ();
+  inline void setDimensionsZ(float value);
+
+  inline float getRotationX();
+  inline void setRotationX(float value);
+
+  inline float getRotationY();
+  inline void setRotationY(float value);
+
+  inline float getRotationZ();
+  inline void setRotationZ(float value);
+
+  inline float getRotationW();
+  inline void setRotationW(float value);
+
+  inline bool hasName();
+  inline  ::capnp::Text::Builder getName();
+  inline void setName( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initName(unsigned int size);
+  inline void adoptName(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownName();
+
+  inline bool hasVertices();
+  inline  ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Builder getVertices();
+  inline void setVertices( ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Reader value);
+  inline  ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Builder initVertices(unsigned int size);
+  inline void adoptVertices(::capnp::Orphan< ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>> disownVertices();
+
+  inline bool hasIndices();
+  inline  ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Builder getIndices();
+  inline void setIndices( ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Reader value);
+  inline void setIndices(::kj::ArrayPtr<const  ::uint64_t> value);
+  inline  ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Builder initIndices(unsigned int size);
+  inline void adoptIndices(::capnp::Orphan< ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>> disownIndices();
+
+  inline bool hasBoneNames();
+  inline  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Builder getBoneNames();
+  inline void setBoneNames( ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Reader value);
+  inline void setBoneNames(::kj::ArrayPtr<const  ::capnp::Text::Reader> value);
+  inline  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Builder initBoneNames(unsigned int size);
+  inline void adoptBoneNames(::capnp::Orphan< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>> disownBoneNames();
+
+
+
+
+  class MeshVertex::Builder {
+
+  inline float getPositionX();
+  inline void setPositionX(float value);
+
+  inline float getPositionY();
+  inline void setPositionY(float value);
+
+  inline float getPositionZ();
+  inline void setPositionZ(float value);
+
+  inline float getNormalX();
+  inline void setNormalX(float value);
+
+  inline float getNormalY();
+  inline void setNormalY(float value);
+
+  inline float getNormalZ();
+  inline void setNormalZ(float value);
+
+  inline float getUvX();
+  inline void setUvX(float value);
+
+  inline float getUvY();
+  inline void setUvY(float value);
+
+  inline  ::uint32_t getBoneIndexX();
+  inline void setBoneIndexX( ::uint32_t value);
+
+  inline  ::uint32_t getBoneIndexY();
+  inline void setBoneIndexY( ::uint32_t value);
+
+  inline  ::uint32_t getBoneIndexZ();
+  inline void setBoneIndexZ( ::uint32_t value);
+
+  inline  ::uint32_t getBoneIndexW();
+  inline void setBoneIndexW( ::uint32_t value);
+
+  inline float getBoneWeightX();
+  inline void setBoneWeightX(float value);
+
+  inline float getBoneWweightY();
+  inline void setBoneWweightY(float value);
+
+  inline float getBoneWeightZ();
+  inline void setBoneWeightZ(float value);
+
+  inline float getBoneWeightW();
+  inline void setBoneWeightW(float value);
+  
+  */
+  capnp::MallocMessageBuilder message;
+  for (auto m : meshes) {
+
+  }
+
 
   std::vector<ozz::animation::offline::RawAnimation> raw_animations;
 
