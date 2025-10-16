@@ -196,7 +196,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     bool has_normals = mesh_data->HasNormals();
     bool has_texcoords = mesh_data->HasTextureCoords(0);
 
-    std::cout << "Mesh " << name << " (" << mesh_num << ") has " << num_verts
+    std::cout << "Mesh " << temp_mesh.name << " (" << mesh_num << ") has " << num_verts
               << " verts and " << num_bones << " bones. Normals? "
               << has_normals << std::endl;
 
@@ -434,7 +434,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
         m.initVertices(meshes[i].vertices.size());
     for (size_t j = 0; j < meshes[i].vertices.size(); ++j) {
       MeshVertex::Builder v = verts[j];
-      verts[i].setPositionX(meshes[i].vertices[j].position[0]);
+      v.setPositionX(meshes[i].vertices[j].position[0]);
       v.setPositionY(meshes[i].vertices[j].position[1]);
       v.setPositionZ(meshes[i].vertices[j].position[2]);
       v.setNormalX(meshes[i].vertices[j].normal[0]);
@@ -465,8 +465,9 @@ bool loader::load(const aiScene *scene, const std::string &name) {
 
   kj::VectorOutputStream output_stream;
   // And write our mesage to the output stream
-  capnp::writePackedMessage(output_stream, message);
-
+   capnp::writePackedMessage(output_stream, message);
+  //auto words = capnp::messageToFlatArray(message);
+  //auto bytes = words.asBytes();
   const auto array = output_stream.getArray();
   auto iter = array.begin();
   std::cout << "Message size: " << array.size() << std::endl;

@@ -20,21 +20,20 @@ int main(int argc, char **argv) {
   std::ifstream file;
   std::vector<unsigned char> chars;
 
-  file.open(mesh_filename, std::ios::binary);
+  file.open(mesh_filename, std::ifstream::binary);
+  // Copy file to buffer
   std::copy(std::istream_iterator<unsigned char>(file),
             std::istream_iterator<unsigned char>(), std::back_inserter(chars));
   file.close();
+
   std::cout << "Filesize: " << chars.size() << std::endl;
   std::cout << "Buffering to kj arrayptr" << std::endl;
 
-  //   kj::ArrayPtr<const unsigned char> kjchars =
-  //       kj::arrayPtr(chars.data(), chars.size() / sizeof(unsigned char));
-  //   std::cout << "Buffering to kj arrayinputstream" << std::endl;
+  kj::ArrayPtr<const unsigned char> kjchars(
+      reinterpret_cast<const unsigned char *>(const_cast<unsigned char *>(&chars[0])),
+      chars.size());
 
-  kj::ArrayPtr<kj::byte> kjchars(
-      reinterpret_cast<kj::byte *>(const_cast<unsigned char *>(&chars[0])),
-      chars.size() / sizeof(unsigned char));
-
+  std::cout << "KJChars size: " << kjchars.size() << std::endl;
   kj::ArrayInputStream buffer(kjchars);
   std::cout << "Creating messagereader" << std::endl;
 
@@ -42,6 +41,7 @@ int main(int argc, char **argv) {
   options.traversalLimitInWords = 2000 * 1024 * 1024;
 
   capnp::PackedMessageReader message(buffer, options);
+  //std::cout << "Message size in words " << message.sizeInWords() << std::endl;
   std::cout << "Getting root node" << std::endl;
   Model::Reader model = message.getRoot<Model>();
   std::cout << "Got root node" << std::endl;
