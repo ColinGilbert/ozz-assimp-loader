@@ -1230,14 +1230,14 @@ pub mod mesh {
       !self.reader.get_pointer_field(7).is_null()
     }
     #[inline]
-    pub fn get_material_index(self) -> u64 {
-      self.reader.get_data_field::<u64>(7)
+    pub fn get_material_index(self) -> u32 {
+      self.reader.get_data_field::<u32>(13)
     }
   }
 
   pub struct Builder<'a> { builder: ::capnp::private::layout::StructBuilder<'a> }
   impl <> ::capnp::traits::HasStructSize for Builder<'_,>  {
-    const STRUCT_SIZE: ::capnp::private::layout::StructSize = ::capnp::private::layout::StructSize { data: 8, pointers: 8 };
+    const STRUCT_SIZE: ::capnp::private::layout::StructSize = ::capnp::private::layout::StructSize { data: 7, pointers: 8 };
   }
   impl <> ::capnp::traits::HasTypeId for Builder<'_,>  {
     const TYPE_ID: u64 = _private::TYPE_ID;
@@ -1520,12 +1520,12 @@ pub mod mesh {
       !self.builder.is_pointer_field_null(7)
     }
     #[inline]
-    pub fn get_material_index(self) -> u64 {
-      self.builder.get_data_field::<u64>(7)
+    pub fn get_material_index(self) -> u32 {
+      self.builder.get_data_field::<u32>(13)
     }
     #[inline]
-    pub fn set_material_index(&mut self, value: u64)  {
-      self.builder.set_data_field::<u64>(7, value);
+    pub fn set_material_index(&mut self, value: u32)  {
+      self.builder.set_data_field::<u32>(13, value);
     }
   }
 
@@ -1541,7 +1541,7 @@ pub mod mesh {
     pub static ENCODED_NODE: [::capnp::Word; 392] = [
       ::capnp::word(0, 0, 0, 0, 6, 0, 6, 0),
       ::capnp::word(73, 102, 228, 157, 29, 151, 133, 230),
-      ::capnp::word(21, 0, 0, 0, 1, 0, 8, 0),
+      ::capnp::word(21, 0, 0, 0, 1, 0, 7, 0),
       ::capnp::word(156, 27, 237, 233, 56, 22, 240, 172),
       ::capnp::word(8, 0, 7, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
@@ -1705,7 +1705,7 @@ pub mod mesh {
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(60, 3, 0, 0, 3, 0, 1, 0),
       ::capnp::word(88, 3, 0, 0, 2, 0, 1, 0),
-      ::capnp::word(21, 0, 0, 0, 7, 0, 0, 0),
+      ::capnp::word(21, 0, 0, 0, 13, 0, 0, 0),
       ::capnp::word(0, 0, 1, 0, 21, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(85, 3, 0, 0, 114, 0, 0, 0),
@@ -1924,11 +1924,11 @@ pub mod mesh {
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(109, 97, 116, 101, 114, 105, 97, 108),
       ::capnp::word(73, 110, 100, 101, 120, 0, 0, 0),
-      ::capnp::word(9, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(8, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(9, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(8, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
     ];
@@ -1955,7 +1955,7 @@ pub mod mesh {
         18 => <::capnp::struct_list::Owned<crate::model3d_schema_capnp::array4u::Owned> as ::capnp::introspect::Introspect>::introspect(),
         19 => <::capnp::struct_list::Owned<crate::model3d_schema_capnp::array4f::Owned> as ::capnp::introspect::Introspect>::introspect(),
         20 => <::capnp::text_list::Owned as ::capnp::introspect::Introspect>::introspect(),
-        21 => <u64 as ::capnp::introspect::Introspect>::introspect(),
+        21 => <u32 as ::capnp::introspect::Introspect>::introspect(),
         _ => ::capnp::introspect::panic_invalid_field_index(index),
       }
     }
@@ -2037,22 +2037,34 @@ pub mod material {
       self.reader.total_size()
     }
     #[inline]
-    pub fn get_texture_type(self) -> u64 {
-      self.reader.get_data_field::<u64>(0)
-    }
-    #[inline]
-    pub fn get_texture_path(self) -> ::capnp::Result<::capnp::text::Reader<'a>> {
+    pub fn get_diffuse_texture_path(self) -> ::capnp::Result<::capnp::text::Reader<'a>> {
       ::capnp::traits::FromPointerReader::get_from_pointer(&self.reader.get_pointer_field(0), ::core::option::Option::None)
     }
     #[inline]
-    pub fn has_texture_path(&self) -> bool {
+    pub fn has_diffuse_texture_path(&self) -> bool {
       !self.reader.get_pointer_field(0).is_null()
+    }
+    #[inline]
+    pub fn get_normals_texture_path(self) -> ::capnp::Result<::capnp::text::Reader<'a>> {
+      ::capnp::traits::FromPointerReader::get_from_pointer(&self.reader.get_pointer_field(1), ::core::option::Option::None)
+    }
+    #[inline]
+    pub fn has_normals_texture_path(&self) -> bool {
+      !self.reader.get_pointer_field(1).is_null()
+    }
+    #[inline]
+    pub fn get_specular_texture_path(self) -> ::capnp::Result<::capnp::text::Reader<'a>> {
+      ::capnp::traits::FromPointerReader::get_from_pointer(&self.reader.get_pointer_field(2), ::core::option::Option::None)
+    }
+    #[inline]
+    pub fn has_specular_texture_path(&self) -> bool {
+      !self.reader.get_pointer_field(2).is_null()
     }
   }
 
   pub struct Builder<'a> { builder: ::capnp::private::layout::StructBuilder<'a> }
   impl <> ::capnp::traits::HasStructSize for Builder<'_,>  {
-    const STRUCT_SIZE: ::capnp::private::layout::StructSize = ::capnp::private::layout::StructSize { data: 1, pointers: 1 };
+    const STRUCT_SIZE: ::capnp::private::layout::StructSize = ::capnp::private::layout::StructSize { data: 0, pointers: 3 };
   }
   impl <> ::capnp::traits::HasTypeId for Builder<'_,>  {
     const TYPE_ID: u64 = _private::TYPE_ID;
@@ -2103,28 +2115,52 @@ pub mod material {
       self.builder.as_reader().total_size()
     }
     #[inline]
-    pub fn get_texture_type(self) -> u64 {
-      self.builder.get_data_field::<u64>(0)
-    }
-    #[inline]
-    pub fn set_texture_type(&mut self, value: u64)  {
-      self.builder.set_data_field::<u64>(0, value);
-    }
-    #[inline]
-    pub fn get_texture_path(self) -> ::capnp::Result<::capnp::text::Builder<'a>> {
+    pub fn get_diffuse_texture_path(self) -> ::capnp::Result<::capnp::text::Builder<'a>> {
       ::capnp::traits::FromPointerBuilder::get_from_pointer(self.builder.get_pointer_field(0), ::core::option::Option::None)
     }
     #[inline]
-    pub fn set_texture_path(&mut self, value: impl ::capnp::traits::SetterInput<::capnp::text::Owned>)  {
+    pub fn set_diffuse_texture_path(&mut self, value: impl ::capnp::traits::SetterInput<::capnp::text::Owned>)  {
       ::capnp::traits::SetterInput::set_pointer_builder(self.builder.reborrow().get_pointer_field(0), value, false).unwrap()
     }
     #[inline]
-    pub fn init_texture_path(self, size: u32) -> ::capnp::text::Builder<'a> {
+    pub fn init_diffuse_texture_path(self, size: u32) -> ::capnp::text::Builder<'a> {
       self.builder.get_pointer_field(0).init_text(size)
     }
     #[inline]
-    pub fn has_texture_path(&self) -> bool {
+    pub fn has_diffuse_texture_path(&self) -> bool {
       !self.builder.is_pointer_field_null(0)
+    }
+    #[inline]
+    pub fn get_normals_texture_path(self) -> ::capnp::Result<::capnp::text::Builder<'a>> {
+      ::capnp::traits::FromPointerBuilder::get_from_pointer(self.builder.get_pointer_field(1), ::core::option::Option::None)
+    }
+    #[inline]
+    pub fn set_normals_texture_path(&mut self, value: impl ::capnp::traits::SetterInput<::capnp::text::Owned>)  {
+      ::capnp::traits::SetterInput::set_pointer_builder(self.builder.reborrow().get_pointer_field(1), value, false).unwrap()
+    }
+    #[inline]
+    pub fn init_normals_texture_path(self, size: u32) -> ::capnp::text::Builder<'a> {
+      self.builder.get_pointer_field(1).init_text(size)
+    }
+    #[inline]
+    pub fn has_normals_texture_path(&self) -> bool {
+      !self.builder.is_pointer_field_null(1)
+    }
+    #[inline]
+    pub fn get_specular_texture_path(self) -> ::capnp::Result<::capnp::text::Builder<'a>> {
+      ::capnp::traits::FromPointerBuilder::get_from_pointer(self.builder.get_pointer_field(2), ::core::option::Option::None)
+    }
+    #[inline]
+    pub fn set_specular_texture_path(&mut self, value: impl ::capnp::traits::SetterInput<::capnp::text::Owned>)  {
+      ::capnp::traits::SetterInput::set_pointer_builder(self.builder.reborrow().get_pointer_field(2), value, false).unwrap()
+    }
+    #[inline]
+    pub fn init_specular_texture_path(self, size: u32) -> ::capnp::text::Builder<'a> {
+      self.builder.get_pointer_field(2).init_text(size)
+    }
+    #[inline]
+    pub fn has_specular_texture_path(&self) -> bool {
+      !self.builder.is_pointer_field_null(2)
     }
   }
 
@@ -2137,18 +2173,18 @@ pub mod material {
   impl Pipeline  {
   }
   mod _private {
-    pub static ENCODED_NODE: [::capnp::Word; 51] = [
+    pub static ENCODED_NODE: [::capnp::Word; 70] = [
       ::capnp::word(0, 0, 0, 0, 6, 0, 6, 0),
       ::capnp::word(6, 26, 164, 199, 132, 251, 73, 145),
-      ::capnp::word(21, 0, 0, 0, 1, 0, 1, 0),
+      ::capnp::word(21, 0, 0, 0, 1, 0, 0, 0),
       ::capnp::word(156, 27, 237, 233, 56, 22, 240, 172),
-      ::capnp::word(1, 0, 7, 0, 0, 0, 0, 0),
+      ::capnp::word(3, 0, 7, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(230, 3, 0, 0, 41, 4, 0, 0),
+      ::capnp::word(230, 3, 0, 0, 85, 4, 0, 0),
       ::capnp::word(21, 0, 0, 0, 242, 0, 0, 0),
       ::capnp::word(33, 0, 0, 0, 7, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(29, 0, 0, 0, 119, 0, 0, 0),
+      ::capnp::word(29, 0, 0, 0, 175, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(109, 111, 100, 101, 108, 51, 100, 95),
@@ -2156,31 +2192,50 @@ pub mod material {
       ::capnp::word(97, 112, 110, 112, 58, 77, 97, 116),
       ::capnp::word(101, 114, 105, 97, 108, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 1, 0, 1, 0),
-      ::capnp::word(8, 0, 0, 0, 3, 0, 4, 0),
+      ::capnp::word(12, 0, 0, 0, 3, 0, 4, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 1, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(41, 0, 0, 0, 98, 0, 0, 0),
+      ::capnp::word(69, 0, 0, 0, 154, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(40, 0, 0, 0, 3, 0, 1, 0),
-      ::capnp::word(52, 0, 0, 0, 2, 0, 1, 0),
-      ::capnp::word(1, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(72, 0, 0, 0, 3, 0, 1, 0),
+      ::capnp::word(84, 0, 0, 0, 2, 0, 1, 0),
+      ::capnp::word(1, 0, 0, 0, 1, 0, 0, 0),
       ::capnp::word(0, 0, 1, 0, 1, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(49, 0, 0, 0, 98, 0, 0, 0),
+      ::capnp::word(81, 0, 0, 0, 154, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(48, 0, 0, 0, 3, 0, 1, 0),
-      ::capnp::word(60, 0, 0, 0, 2, 0, 1, 0),
-      ::capnp::word(116, 101, 120, 116, 117, 114, 101, 84),
-      ::capnp::word(121, 112, 101, 0, 0, 0, 0, 0),
-      ::capnp::word(9, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(84, 0, 0, 0, 3, 0, 1, 0),
+      ::capnp::word(96, 0, 0, 0, 2, 0, 1, 0),
+      ::capnp::word(2, 0, 0, 0, 2, 0, 0, 0),
+      ::capnp::word(0, 0, 1, 0, 2, 0, 0, 0),
+      ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(93, 0, 0, 0, 162, 0, 0, 0),
+      ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(96, 0, 0, 0, 3, 0, 1, 0),
+      ::capnp::word(108, 0, 0, 0, 2, 0, 1, 0),
+      ::capnp::word(100, 105, 102, 102, 117, 115, 101, 84),
+      ::capnp::word(101, 120, 116, 117, 114, 101, 80, 97),
+      ::capnp::word(116, 104, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(12, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(9, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(12, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(116, 101, 120, 116, 117, 114, 101, 80),
+      ::capnp::word(110, 111, 114, 109, 97, 108, 115, 84),
+      ::capnp::word(101, 120, 116, 117, 114, 101, 80, 97),
+      ::capnp::word(116, 104, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(12, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(12, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(115, 112, 101, 99, 117, 108, 97, 114),
+      ::capnp::word(84, 101, 120, 116, 117, 114, 101, 80),
       ::capnp::word(97, 116, 104, 0, 0, 0, 0, 0),
       ::capnp::word(12, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
@@ -2192,8 +2247,9 @@ pub mod material {
     ];
     pub fn get_field_types(index: u16) -> ::capnp::introspect::Type {
       match index {
-        0 => <u64 as ::capnp::introspect::Introspect>::introspect(),
+        0 => <::capnp::text::Owned as ::capnp::introspect::Introspect>::introspect(),
         1 => <::capnp::text::Owned as ::capnp::introspect::Introspect>::introspect(),
+        2 => <::capnp::text::Owned as ::capnp::introspect::Introspect>::introspect(),
         _ => ::capnp::introspect::panic_invalid_field_index(index),
       }
     }
@@ -2206,9 +2262,9 @@ pub mod material {
       members_by_discriminant: MEMBERS_BY_DISCRIMINANT,
       members_by_name: MEMBERS_BY_NAME,
     };
-    pub static NONUNION_MEMBERS : &[u16] = &[0,1];
+    pub static NONUNION_MEMBERS : &[u16] = &[0,1,2];
     pub static MEMBERS_BY_DISCRIMINANT : &[u16] = &[];
-    pub static MEMBERS_BY_NAME : &[u16] = &[1,0];
+    pub static MEMBERS_BY_NAME : &[u16] = &[0,1,2];
     pub const TYPE_ID: u64 = 0x9149_fb84_c7a4_1a06;
   }
 }
@@ -2394,7 +2450,7 @@ pub mod model {
       ::capnp::word(156, 27, 237, 233, 56, 22, 240, 172),
       ::capnp::word(2, 0, 7, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(43, 4, 0, 0, 114, 4, 0, 0),
+      ::capnp::word(87, 4, 0, 0, 158, 4, 0, 0),
       ::capnp::word(21, 0, 0, 0, 218, 0, 0, 0),
       ::capnp::word(33, 0, 0, 0, 7, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),

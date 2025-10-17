@@ -51,8 +51,10 @@ struct Mesh {
 }
 
 struct Material {
-	textureType @0: UInt64;
-	texturePath @1: Text;
+	diffuseTexturePath @0: Text;
+	normalsTexturePath @1: Text;
+	specularTexturePath @2: Text;
+
 }
 
 struct Model {

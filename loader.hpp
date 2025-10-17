@@ -54,9 +54,13 @@ public:
     std::vector<std::string> bone_names;
     unsigned int material_index;
   };
+
   enum texture_type { NONE = 0, DIFFUSE = 1, NORMAL = 2, SPECULAR = 3};
+  
   struct material {
-    std::string texture_path;
+    std::string diffuse_texture_path;
+	std::string normals_texture_path;
+	std::string specular_texture_path;
     texture_type tex_type;
   };
 

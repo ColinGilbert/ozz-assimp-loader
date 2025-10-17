@@ -421,20 +421,19 @@ bool loader::load(const aiScene *scene, const std::string &name) {
       aiString texturePath;
       if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) ==
           AI_SUCCESS) {
-        material.texture_path = std::string(texturePath.C_Str());
-        material.tex_type = loader::texture_type::DIFFUSE;
-      } else if (mat->GetTexture(aiTextureType_NORMALS, 0, &texturePath) ==
-                 AI_SUCCESS) {
-        material.texture_path = std::string(texturePath.C_Str());
-        material.tex_type = loader::texture_type::NORMAL;
-      } else if (mat->GetTexture(aiTextureType_SPECULAR, 0, &texturePath) ==
-                 AI_SUCCESS) {
-        material.texture_path = std::string(texturePath.C_Str());
-        material.tex_type = loader::texture_type::SPECULAR;
-      } else {
-        material.tex_type = loader::texture_type::NONE;
+        material.diffuse_texture_path = std::string(texturePath.C_Str());
+      }
+      if (mat->GetTexture(aiTextureType_NORMALS, 0, &texturePath) ==
+          AI_SUCCESS) {
+        material.normals_texture_path = std::string(texturePath.C_Str());
+      }
+      if (mat->GetTexture(aiTextureType_SPECULAR, 0, &texturePath) ==
+          AI_SUCCESS) {
+        material.specular_texture_path = std::string(texturePath.C_Str());
       }
       materials.push_back(material);
+
+      // std::cout << texturePath.C_Str() << std::endl;
     }
   }
 
@@ -532,8 +531,9 @@ bool loader::load(const aiScene *scene, const std::string &name) {
   // Create the material buffer in capnproto
   for (size_t i = 0; i < materials.size(); ++i) {
     Material::Builder m = materials_output[i];
-    m.setTextureType(static_cast<size_t>(materials[i].tex_type));
-    m.setTexturePath(materials[i].texture_path);
+    m.setDiffuseTexturePath(materials[i].diffuse_texture_path);
+    m.setNormalsTexturePath(materials[i].normals_texture_path);
+    m.setSpecularTexturePath(materials[i].specular_texture_path);
   }
 
   // NOW WE WRITE OUR SERIALIZED MODEL!
@@ -553,12 +553,12 @@ bool loader::load(const aiScene *scene, const std::string &name) {
   }
 
   std::ofstream output_file;
-  output_file.open(output_pathname + "/model.bin", std::ios::binary);
+  output_file.open("output" + output_pathname + "/model.bin", std::ios::binary);
   for (unsigned char c : buffer) {
     output_file.put(c);
   }
 
-  std::cout << "Writing model file to " << output_pathname + "/model.bin"
+  std::cout << "Writing model file to output/" << output_pathname + "/model.bin"
             << std::endl;
   // std::cout << "Buffer size: " << buffer.size() << std::endl;
 

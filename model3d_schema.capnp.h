@@ -113,7 +113,7 @@ struct Material {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(9149fb84c7a41a06, 1, 1)
+    CAPNP_DECLARE_STRUCT_HEADER(9149fb84c7a41a06, 0, 3)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -726,10 +726,14 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline  ::uint64_t getTextureType() const;
+  inline bool hasDiffuseTexturePath() const;
+  inline  ::capnp::Text::Reader getDiffuseTexturePath() const;
 
-  inline bool hasTexturePath() const;
-  inline  ::capnp::Text::Reader getTexturePath() const;
+  inline bool hasNormalsTexturePath() const;
+  inline  ::capnp::Text::Reader getNormalsTexturePath() const;
+
+  inline bool hasSpecularTexturePath() const;
+  inline  ::capnp::Text::Reader getSpecularTexturePath() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -759,15 +763,26 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  inline  ::uint64_t getTextureType();
-  inline void setTextureType( ::uint64_t value);
+  inline bool hasDiffuseTexturePath();
+  inline  ::capnp::Text::Builder getDiffuseTexturePath();
+  inline void setDiffuseTexturePath( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initDiffuseTexturePath(unsigned int size);
+  inline void adoptDiffuseTexturePath(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownDiffuseTexturePath();
 
-  inline bool hasTexturePath();
-  inline  ::capnp::Text::Builder getTexturePath();
-  inline void setTexturePath( ::capnp::Text::Reader value);
-  inline  ::capnp::Text::Builder initTexturePath(unsigned int size);
-  inline void adoptTexturePath(::capnp::Orphan< ::capnp::Text>&& value);
-  inline ::capnp::Orphan< ::capnp::Text> disownTexturePath();
+  inline bool hasNormalsTexturePath();
+  inline  ::capnp::Text::Builder getNormalsTexturePath();
+  inline void setNormalsTexturePath( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initNormalsTexturePath(unsigned int size);
+  inline void adoptNormalsTexturePath(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownNormalsTexturePath();
+
+  inline bool hasSpecularTexturePath();
+  inline  ::capnp::Text::Builder getSpecularTexturePath();
+  inline void setSpecularTexturePath( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initSpecularTexturePath(unsigned int size);
+  inline void adoptSpecularTexturePath(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownSpecularTexturePath();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -1546,52 +1561,106 @@ inline void Mesh::Builder::setMaterialIndex( ::uint32_t value) {
       ::capnp::bounded<13>() * ::capnp::ELEMENTS, value);
 }
 
-inline  ::uint64_t Material::Reader::getTextureType() const {
-  return _reader.getDataField< ::uint64_t>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
-}
-
-inline  ::uint64_t Material::Builder::getTextureType() {
-  return _builder.getDataField< ::uint64_t>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
-}
-inline void Material::Builder::setTextureType( ::uint64_t value) {
-  _builder.setDataField< ::uint64_t>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
-}
-
-inline bool Material::Reader::hasTexturePath() const {
+inline bool Material::Reader::hasDiffuseTexturePath() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool Material::Builder::hasTexturePath() {
+inline bool Material::Builder::hasDiffuseTexturePath() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::Text::Reader Material::Reader::getTexturePath() const {
+inline  ::capnp::Text::Reader Material::Reader::getDiffuseTexturePath() const {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::capnp::Text::Builder Material::Builder::getTexturePath() {
+inline  ::capnp::Text::Builder Material::Builder::getDiffuseTexturePath() {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void Material::Builder::setTexturePath( ::capnp::Text::Reader value) {
+inline void Material::Builder::setDiffuseTexturePath( ::capnp::Text::Reader value) {
   ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::Text::Builder Material::Builder::initTexturePath(unsigned int size) {
+inline  ::capnp::Text::Builder Material::Builder::initDiffuseTexturePath(unsigned int size) {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), size);
 }
-inline void Material::Builder::adoptTexturePath(
+inline void Material::Builder::adoptDiffuseTexturePath(
     ::capnp::Orphan< ::capnp::Text>&& value) {
   ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::Text> Material::Builder::disownTexturePath() {
+inline ::capnp::Orphan< ::capnp::Text> Material::Builder::disownDiffuseTexturePath() {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+inline bool Material::Reader::hasNormalsTexturePath() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline bool Material::Builder::hasNormalsTexturePath() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::Text::Reader Material::Reader::getNormalsTexturePath() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder Material::Builder::getNormalsTexturePath() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline void Material::Builder::setNormalsTexturePath( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder Material::Builder::initNormalsTexturePath(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), size);
+}
+inline void Material::Builder::adoptNormalsTexturePath(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> Material::Builder::disownNormalsTexturePath() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+
+inline bool Material::Reader::hasSpecularTexturePath() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
+}
+inline bool Material::Builder::hasSpecularTexturePath() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::Text::Reader Material::Reader::getSpecularTexturePath() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder Material::Builder::getSpecularTexturePath() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+inline void Material::Builder::setSpecularTexturePath( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder Material::Builder::initSpecularTexturePath(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), size);
+}
+inline void Material::Builder::adoptSpecularTexturePath(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> Material::Builder::disownSpecularTexturePath() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
 }
 
 inline bool Model::Reader::hasMeshes() const {
