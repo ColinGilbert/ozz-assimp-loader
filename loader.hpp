@@ -1,115 +1,108 @@
-// This loader loads skeletal meshes from Assimp into ozz-animation format, and loads proper mesh data to use alongside it in an engine neutral format. Enjoy.
-// MIT license.
-// Colin Gilbert
+// This loader loads skeletal meshes from Assimp into ozz-animation format, and
+// loads proper mesh data to use alongside it in an engine neutral format.
+// Enjoy. MIT license. Colin Gilbert
 
 // TODO: Options via config file
 
 #include <array>
-#include <vector>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+#include <fstream>
+#include <iostream>
+#include <lemon/list_graph.h>
 #include <set>
 #include <unordered_map>
-#include <iostream>
-#include <fstream>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-#include <lemon/list_graph.h>
+#include <vector>
 
-
+#include <ozz/animation/offline/raw_skeleton.h>
 #include <ozz/base/io/archive.h>
 #include <ozz/base/io/stream.h>
-#include <ozz/animation/offline/raw_skeleton.h>
 
 #include <boost/filesystem.hpp>
 
-
+#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
-#include <iostream>
 
-class loader
-{
-	public:
-		struct mesh_vertex
-		{
-			mesh_vertex() : position( {0.0f, 0.0f, 0.0f }), normal({ 0.0f, 0.0f, 0.0f }), uv({ 0.0f, 0.0f} ), bone_names({ "", "", "", "" }), bone_indices({0, 0, 0, 0}), bone_weights({ 0.0f, 0.0f, 0.0f, 0.0f} ) {}
-			std::array<float, 3> position, normal;
-			std::array<float, 2> uv;
-			std::array<std::string, 4> bone_names;
-			std::array<size_t, 4> bone_indices;
-			std::array<float, 4> bone_weights;
-		};
+class loader {
+public:
+  struct mesh_vertex {
+    mesh_vertex()
+        : position({0.0f, 0.0f, 0.0f}), normal({0.0f, 0.0f, 0.0f}),
+          uv({0.0f, 0.0f}), bone_names({"", "", "", ""}),
+          bone_indices({0, 0, 0, 0}), bone_weights({0.0f, 0.0f, 0.0f, 0.0f}) {}
+    std::array<float, 3> position, normal;
+    std::array<float, 2> uv;
+    std::array<std::string, 4> bone_names;
+    std::array<size_t, 4> bone_indices;
+    std::array<float, 4> bone_weights;
+  };
 
-		// struct mesh
-		// {
-		// 	std::array<float, 3> translation, scale, dimensions;
-		// 	std::array<float, 4> rotation;
-		// 	std::string name;
-		// 	std::vector<mesh_vertex> vertices;
-		// 	std::vector<uint32_t> indices;
-		// 	std::vector<std::string> bone_names;
-		// };
+  struct mesh {
+    std::array<float, 3> translation, scale, dimensions;
+    std::array<float, 4> rotation;
+    std::string name;
+    std::vector<std::array<float, 3>> positions, normals;
+    std::vector<std::array<float, 2>> uvs;
+    std::vector<std::array<std::string, 4>>
+        vert_bone_names; // Used to calculate bone indices and weights
+    std::vector<std::array<size_t, 4>> bone_indices;
+    std::vector<std::array<float, 4>> bone_weights;
+    std::vector<uint32_t> indices;
+    std::vector<std::string> bone_names;
+    size_t material_index;
+  };
+  enum texture_type { NONE = 0, DIFFUSE = 1, NORMAL = 2, };
+  struct material {
+    std::string texture_path;
+    texture_type tex_type;
+  };
 
-		struct mesh
-		{
-			std::array<float, 3> translation, scale, dimensions;
-			std::array<float, 4> rotation;
-			std::string name;
-			std::vector<std::array<float, 3>> positions, normals;
-			std::vector<std::array<float, 2>> uvs;
-			std::vector<std::array<std::string,4>> vert_bone_names; // Used to calculate bone indices and weights
-			std::vector<std::array<size_t, 4>> bone_indices;
-			std::vector<std::array<float, 4>> bone_weights;
-			std::vector<uint32_t> indices;
-			std::vector<std::string> bone_names;
-		};
+  class hierarchy {
+  public:
+    hierarchy()
+        : _translation(_graph), _scale(_graph), _rotation(_graph),
+          _name(_graph) {}
 
-		class hierarchy
-		{
-			public:
+    void init(const aiScene *scene, const std::set<std::string> &bone_names);
 
+    ozz::animation::offline::RawSkeleton make_raw_skeleton();
 
-				hierarchy(): _translation(_graph), _scale(_graph), _rotation(_graph), _name(_graph) {}
+    void print_info();
 
-				void init(const aiScene* scene, const std::set<std::string>& bone_names);
+  protected:
+    std::vector<lemon::ListDigraph::Node> find_roots();
 
-				ozz::animation::offline::RawSkeleton make_raw_skeleton();
+    void recursive_build(aiNode *current,
+                         const std::set<std::string> &bone_names);
 
-				void print_info();
+    void link(aiNode *parent, aiNode *child);
 
-			protected:
+    lemon::ListDigraph::Node add(aiNode *assimp_node);
 
-				std::vector<lemon::ListDigraph::Node> find_roots();
+    void recursive_ozz_helper(
+        const lemon::ListDigraph::Node &n,
+        ozz::animation::offline::RawSkeleton::Joint &caller_joint,
+        size_t index);
 
-				void recursive_build(aiNode* current, const std::set<std::string>& bone_names);
+    void recursive_print(lemon::ListDigraph::Node n);
 
-				void link(aiNode* parent, aiNode* child);
+    lemon::ListDigraph _graph;
+    lemon::ListDigraph::NodeMap<std::array<float, 3>> _translation, _scale;
+    lemon::ListDigraph::NodeMap<std::array<float, 4>> _rotation;
+    lemon::ListDigraph::NodeMap<std::string> _name;
 
-				lemon::ListDigraph::Node add(aiNode* assimp_node);
+    // For easy access
+    std::map<aiNode *, lemon::ListDigraph::Node> nodes;
+  };
 
-				void recursive_ozz_helper(const lemon::ListDigraph::Node& n, ozz::animation::offline::RawSkeleton::Joint& caller_joint, size_t index);
+  bool load(const aiScene *scene, const std::string &name);
 
-				void recursive_print(lemon::ListDigraph::Node n);
+  std::string get_output_path() const { return output_pathname; }
 
-
-				lemon::ListDigraph _graph;
-				lemon::ListDigraph::NodeMap<std::array<float, 3>> _translation, _scale;
-				lemon::ListDigraph::NodeMap<std::array<float, 4>> _rotation;
-				lemon::ListDigraph::NodeMap<std::string> _name; 
-
-				// For easy access
-				std::map<aiNode*, lemon::ListDigraph::Node> nodes;
-		};
-
-		bool load(const aiScene* scene, const std::string& name);
-
-		std::string get_output_path() const
-		{
-			return output_pathname;
-		}
-
-	protected:
-		std::vector<loader::mesh> meshes;
-		std::string output_pathname;
+protected:
+  std::vector<loader::mesh> meshes;
+  std::string output_pathname;
 };

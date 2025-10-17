@@ -47,8 +47,15 @@ struct Mesh {
 	boneIndices @18: List(Array4u);
 	boneWeights @19: List(Array4f);
 	boneNames @20 :List(Text);
+	materialIndex @21: UInt64;
+}
+
+struct Material {
+	textureType @0: UInt64;
+	texturePath @1: Text;
 }
 
 struct Model {
 	meshes @0: List(Mesh);
+	materials @1: List(Material);
 }

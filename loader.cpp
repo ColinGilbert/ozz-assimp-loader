@@ -281,19 +281,12 @@ bool loader::load(const aiScene *scene, const std::string &name) {
           }
         }
       }
+      temp_mesh.material_index = mesh_data->mMaterialIndex;
       meshes.push_back(temp_mesh);
     }
 
     std::cout << "Total of " << meshes.size() << " meshes in file " << name
               << "." << std::endl;
-
-    //   for (mesh m : meshes) {
-    //     std::cout << "Bones for mesh " << m.name << ":";
-    //     for (std::string s : m.bone_names) {
-    //       std::cout << " " << s;
-    //     }
-    //     std::cout << std::endl;
-    //   }
 
     loader::hierarchy bone_hierarchy;
 
@@ -411,12 +404,36 @@ bool loader::load(const aiScene *scene, const std::string &name) {
       meshes[mesh_index] = m;
     }
 
-    // Now we create the mesh buffer in capnproto
+    // Read in materials
+    std::vector<loader::material> materials;
+    const bool has_materials = scene->HasMaterials();
+    if (has_materials) {
+      for (size_t i = 0; i < scene->mNumMaterials; ++i) {
+        loader::material material;
+        const auto mat = scene->mMaterials[i];
+        aiString texturePath;
+        if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) ==
+            AI_SUCCESS) {
+          material.texture_path = std::string(texturePath.C_Str());
+          material.tex_type = loader::texture_type::DIFFUSE;
+        } else if (mat->GetTexture(aiTextureType_NORMALS, 0, &texturePath) ==
+            AI_SUCCESS) {
+          material.texture_path = std::string(texturePath.C_Str());
+          material.tex_type = loader::texture_type::NORMAL;
+        }
+        materials.push_back(material);
+      }
+    }
+
+    // CapnProto builders
     capnp::MallocMessageBuilder message;
     Model::Builder model_output = message.initRoot<Model>();
     capnp::List<Mesh>::Builder meshes_output =
         model_output.initMeshes(meshes.size());
+    capnp::List<Material>::Builder materials_output =
+        model_output.initMaterials(materials.size());
 
+    // Create the mesh in capnproto
     for (size_t i = 0; i < meshes.size(); ++i) {
       Mesh::Builder m = meshes_output[i];
       m.setTranslationX(meshes[i].translation[0]);
@@ -433,6 +450,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
       m.setRotationZ(meshes[i].rotation[2]);
       m.setRotationW(meshes[i].rotation[3]);
       m.setName(meshes[i].name);
+      m.setMaterialIndex(meshes[i].material_index);
 
       capnp::List<Array3f>::Builder positions =
           m.initPositions(meshes[i].positions.size());
@@ -498,7 +516,16 @@ bool loader::load(const aiScene *scene, const std::string &name) {
         }
       }
     }
-    std::cout << "ABOUT TO WRITE MESSAGE" << std::endl;
+
+    // Create the material buffer in capnproto
+    for (size_t i = 0; i < materials.size(); ++i) {
+      Material::Builder m = materials_output[i];
+      m.setTextureType(static_cast<size_t>(materials[i].tex_type));
+      m.setTexturePath(materials[i].texture_path);
+    }
+
+
+    // NOW WE WRITE OUR SERIALIZED MODEL!
     kj::VectorOutputStream output_stream;
     // And write our mesage to the output stream
     capnp::writePackedMessage(output_stream, message);
@@ -507,6 +534,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     const auto array = output_stream.getArray();
     auto iter = array.begin();
     std::cout << "Message size: " << array.size() << std::endl;
+
     std::vector<char> buffer;
     while (iter != array.end()) {
       buffer.push_back(*iter);
@@ -514,12 +542,14 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     }
 
     std::ofstream output_file;
-    output_file.open(output_pathname + "/meshes.bin", std::ios::binary);
+    output_file.open(output_pathname + "/model.bin", std::ios::binary);
     for (unsigned char c : buffer) {
       output_file.put(c);
     }
 
-    std::cout << "Buffer size: " << buffer.size() << std::endl;
+    std::cout << "Writing model file to " << output_pathname + "/model.bin"
+              << std::endl;
+    // std::cout << "Buffer size: " << buffer.size() << std::endl;
 
     output_file.close();
 
