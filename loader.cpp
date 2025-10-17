@@ -197,7 +197,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     bool has_normals = mesh_data->HasNormals();
     bool has_texcoords = mesh_data->HasTextureCoords(0);
 
-    temp_mesh.positions.reserve(num_verts);
+    temp_mesh.positions.resize(num_verts);
 
     std::cout << "Mesh " << temp_mesh.name << " (" << mesh_num << ") has "
               << num_verts << " verts and " << num_bones << " bones. Normals? "
@@ -221,14 +221,14 @@ bool loader::load(const aiScene *scene, const std::string &name) {
       max_extents[2] = std::max(max_extents[2], pt[2]);
 
       if (has_normals) {
-        temp_mesh.normals.reserve(num_verts);
+        temp_mesh.normals.resize(num_verts);
         aiVector3D normal = mesh_data->mNormals[n];
         temp_mesh.normals[n][0] = normal[0];
         temp_mesh.normals[n][1] = normal[1];
         temp_mesh.normals[n][2] = normal[2];
       }
       if (has_texcoords) {
-        temp_mesh.uvs.reserve(num_verts);
+        temp_mesh.uvs.resize(num_verts);
         aiVector3D uv = mesh_data->mTextureCoords[0][n];
         temp_mesh.uvs[n][0] = uv.x;
         temp_mesh.uvs[n][1] = uv.y;
@@ -260,34 +260,27 @@ bool loader::load(const aiScene *scene, const std::string &name) {
         aiBone *bone_data = mesh_data->mBones[n];
         std::string temp_bone_name = std::string(bone_data->mName.C_Str());
         // TODO: Remove
-        std::cout << "WAYPOINT 1" << std::endl;
         std::cout << temp_bone_name << " " << temp_mesh.bone_names.size()
                   << std::endl;
         temp_mesh.bone_names.push_back(temp_bone_name);
-        std::cout << "WAYPOINT 2" << std::endl;
 
         // Make sure to keep track of every bone in the scene (in order to
         // account for multimesh models)
         scene_bone_names.insert(temp_bone_name);
-        std::cout << "WAYPOINT 3. num verts" << num_verts << std::endl;
         // Store the bone names and weights in the vert data.
         for (uint32_t i = 0; i < bone_data->mNumWeights; ++i) {
           size_t bone_vertex_id = bone_data->mWeights[i].mVertexId;
 
           for (size_t j = 0; j < 4; ++j) {
             if (temp_mesh.bone_weights[bone_vertex_id][j] == 0.0) {
-              std::cout << "WAYPOINT 4 Bone Vertex id" << bone_vertex_id << std::endl;
               temp_mesh.vert_bone_names[bone_vertex_id][j] = temp_bone_name;
-              std::cout << "WAYPOINT 5" << std::endl;
               temp_mesh.bone_weights[bone_vertex_id][j] =
                   bone_data->mWeights[i].mWeight;
-              std::cout << "WAYPOINT 6" << std::endl;
               break;
             }
           }
         }
       }
-      std::cout << "PRIOR TO PUSH BACK TEMP_MESH" << std::endl;
       meshes.push_back(temp_mesh);
     }
 
