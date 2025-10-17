@@ -28,17 +28,17 @@
 
 class loader {
 public:
-  struct mesh_vertex {
-    mesh_vertex()
-        : position({0.0f, 0.0f, 0.0f}), normal({0.0f, 0.0f, 0.0f}),
-          uv({0.0f, 0.0f}), bone_names({"", "", "", ""}),
-          bone_indices({0, 0, 0, 0}), bone_weights({0.0f, 0.0f, 0.0f, 0.0f}) {}
-    std::array<float, 3> position, normal;
-    std::array<float, 2> uv;
-    std::array<std::string, 4> bone_names;
-    std::array<size_t, 4> bone_indices;
-    std::array<float, 4> bone_weights;
-  };
+//   struct mesh_vertex {
+//     mesh_vertex()
+//         : position({0.0f, 0.0f, 0.0f}), normal({0.0f, 0.0f, 0.0f}),
+//           uv({0.0f, 0.0f}), bone_names({"", "", "", ""}),
+//           bone_indices({0, 0, 0, 0}), bone_weights({0.0f, 0.0f, 0.0f, 0.0f}) {}
+//     std::array<float, 3> position, normal;
+//     std::array<float, 2> uv;
+//     std::array<std::string, 4> bone_names;
+//     std::array<size_t, 4> bone_indices;
+//     std::array<float, 4> bone_weights;
+//   };
 
   struct mesh {
     std::array<float, 3> translation, scale, dimensions;
@@ -52,9 +52,9 @@ public:
     std::vector<std::array<float, 4>> bone_weights;
     std::vector<uint32_t> indices;
     std::vector<std::string> bone_names;
-    size_t material_index;
+    unsigned int material_index;
   };
-  enum texture_type { NONE = 0, DIFFUSE = 1, NORMAL = 2, };
+  enum texture_type { NONE = 0, DIFFUSE = 1, NORMAL = 2, SPECULAR = 3};
   struct material {
     std::string texture_path;
     texture_type tex_type;
@@ -104,5 +104,6 @@ public:
 
 protected:
   std::vector<loader::mesh> meshes;
+  std::vector<loader::material> materials;
   std::string output_pathname;
 };

@@ -47,7 +47,7 @@ struct Mesh {
 	boneIndices @18: List(Array4u);
 	boneWeights @19: List(Array4f);
 	boneNames @20 :List(Text);
-	materialIndex @21: UInt64;
+	materialIndex @21: UInt32;
 }
 
 struct Material {

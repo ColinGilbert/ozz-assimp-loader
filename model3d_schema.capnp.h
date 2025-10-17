@@ -98,7 +98,7 @@ struct Mesh {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(e685971d9de46649, 8, 8)
+    CAPNP_DECLARE_STRUCT_HEADER(e685971d9de46649, 7, 8)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -553,7 +553,7 @@ public:
   inline bool hasBoneNames() const;
   inline  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Reader getBoneNames() const;
 
-  inline  ::uint64_t getMaterialIndex() const;
+  inline  ::uint32_t getMaterialIndex() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -680,8 +680,8 @@ public:
   inline void adoptBoneNames(::capnp::Orphan< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>>&& value);
   inline ::capnp::Orphan< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>> disownBoneNames();
 
-  inline  ::uint64_t getMaterialIndex();
-  inline void setMaterialIndex( ::uint64_t value);
+  inline  ::uint32_t getMaterialIndex();
+  inline void setMaterialIndex( ::uint32_t value);
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -1532,18 +1532,18 @@ inline ::capnp::Orphan< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>> Mes
       ::capnp::bounded<7>() * ::capnp::POINTERS));
 }
 
-inline  ::uint64_t Mesh::Reader::getMaterialIndex() const {
-  return _reader.getDataField< ::uint64_t>(
-      ::capnp::bounded<7>() * ::capnp::ELEMENTS);
+inline  ::uint32_t Mesh::Reader::getMaterialIndex() const {
+  return _reader.getDataField< ::uint32_t>(
+      ::capnp::bounded<13>() * ::capnp::ELEMENTS);
 }
 
-inline  ::uint64_t Mesh::Builder::getMaterialIndex() {
-  return _builder.getDataField< ::uint64_t>(
-      ::capnp::bounded<7>() * ::capnp::ELEMENTS);
+inline  ::uint32_t Mesh::Builder::getMaterialIndex() {
+  return _builder.getDataField< ::uint32_t>(
+      ::capnp::bounded<13>() * ::capnp::ELEMENTS);
 }
-inline void Mesh::Builder::setMaterialIndex( ::uint64_t value) {
-  _builder.setDataField< ::uint64_t>(
-      ::capnp::bounded<7>() * ::capnp::ELEMENTS, value);
+inline void Mesh::Builder::setMaterialIndex( ::uint32_t value) {
+  _builder.setDataField< ::uint32_t>(
+      ::capnp::bounded<13>() * ::capnp::ELEMENTS, value);
 }
 
 inline  ::uint64_t Material::Reader::getTextureType() const {

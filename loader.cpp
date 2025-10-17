@@ -11,11 +11,11 @@
 #include <kj/array.h>
 #include <kj/io.h>
 
+#include "model3d_schema.capnp.h"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-
-#include "model3d_schema.capnp.h"
+#include <memory>
 
 void loader::hierarchy::init(const aiScene *scene,
                              const std::set<std::string> &bone_names) {
@@ -62,7 +62,7 @@ void loader::hierarchy::print_info() {
     std::cout << "Node " << count << " name = " << _name[n] << std::endl;
   }
 
-  std::cout << "Count = " << count << std::endl;
+  std::cout << "Node Count = " << count << std::endl;
 
   // recursive_print();
 }
@@ -180,7 +180,9 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     std::cout << "[Mesh] load(" << name << ") - cannot open" << std::endl;
     return false;
   }
-
+  bool has_bones = false;
+  std::unordered_map<std::string, size_t> joint_indices;
+  size_t num_joints = 0;
   std::set<std::string> scene_bone_names;
   // aiNode* scene_root = scene->mRootNode;
 
@@ -189,11 +191,10 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     loader::mesh temp_mesh;
     temp_mesh.name = std::string(mesh_data->mName.C_Str());
     std::cout << "Attempting to obtain data for mesh " << std::endl;
-
     size_t num_verts = mesh_data->mNumVertices;
     size_t num_faces = mesh_data->mNumFaces;
     size_t num_bones = mesh_data->mNumBones;
-    bool has_bones = mesh_data->HasBones();
+    has_bones = mesh_data->HasBones();
     bool has_normals = mesh_data->HasNormals();
     bool has_texcoords = mesh_data->HasTextureCoords(0);
 
@@ -239,6 +240,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     for (size_t i = 0; i < 3; ++i) {
       temp_dims[i] = max_extents[i] - min_extents[i];
     }
+
     temp_mesh.dimensions = temp_dims;
 
     for (size_t n = 0; n < num_faces; ++n) {
@@ -248,6 +250,10 @@ bool loader::load(const aiScene *scene, const std::string &name) {
         temp_mesh.indices.push_back(face.mIndices[1]);
         temp_mesh.indices.push_back(face.mIndices[2]);
       }
+      // else {
+      //   std::cout<< "Found faces with " << face.mNumIndices << " indicce" <<
+      //   std::endl;
+      // }
     }
 
     if (has_bones) {
@@ -282,12 +288,13 @@ bool loader::load(const aiScene *scene, const std::string &name) {
         }
       }
       temp_mesh.material_index = mesh_data->mMaterialIndex;
-      meshes.push_back(temp_mesh);
     }
+    meshes.push_back(temp_mesh);
+  }
 
-    std::cout << "Total of " << meshes.size() << " meshes in file " << name
-              << "." << std::endl;
-
+  std::cout << "Total of " << meshes.size() << " meshes in file " << name << "."
+            << std::endl;
+  if (has_bones) {
     loader::hierarchy bone_hierarchy;
 
     bone_hierarchy.init(scene, scene_bone_names);
@@ -355,10 +362,9 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     // the ozz skeleton structure.
     // TODO: Find out if necessary.
     ozz::span<const char *const> joint_names = runtime_skel->joint_names();
-    size_t num_joints = runtime_skel->num_joints();
+    num_joints = runtime_skel->num_joints();
 
     std::vector<std::string> joint_names_str;
-    std::unordered_map<std::string, size_t> joint_indices;
 
     for (size_t i = 0; i < num_joints; ++i) {
       std::string s = std::string(joint_names[i]);
@@ -377,185 +383,192 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     // Now, get the bone names from each vertex and insert the matching bone
     // indices.
     for (size_t mesh_index = 0; mesh_index < meshes.size(); ++mesh_index) {
-      mesh m = meshes[mesh_index];
+      loader::mesh m = meshes[mesh_index];
       m.bone_names = joint_names_str;
       std::cout << std::endl;
       for (size_t vert_index = 0; vert_index < m.positions.size();
            ++vert_index) {
         // mesh_vertex v = m.vertices[vert_index];
-        for (size_t i = 0; i < m.vert_bone_names[vert_index].size(); ++i) {
-          std::string s = m.vert_bone_names[vert_index][i];
-          if (!s.empty()) {
-            auto it = joint_indices.find(s);
-            if (it != joint_indices.end()) {
-              m.bone_indices[vert_index][i] = joint_indices.find(s)->second;
-              // std::cout << "Found index " << v.bone_indices[i]
-              //           << " for bone name " << v.bone_names[i] << std::endl;
-            } else {
-              std::cout << "ERROR! Could not find bone index for " << s
-                        << " in joint indices map!!!" << std::endl;
-              return false;
+        if (m.vert_bone_names.size() == m.bone_indices.size() ==
+            m.positions.size()) {
+          for (size_t i = 0; i < m.vert_bone_names[vert_index].size(); ++i) {
+            std::string s = m.vert_bone_names[vert_index][i];
+            if (!s.empty()) {
+              auto it = joint_indices.find(s);
+              if (it != joint_indices.end()) {
+                m.bone_indices[vert_index][i] = joint_indices.find(s)->second;
+                // std::cout << "Found index " << v.bone_indices[i]
+                //           << " for bone name " << v.bone_names[i] <<
+                //           std::endl;
+              } else {
+                std::cout << "ERROR! Could not find bone index for " << s
+                          << " in joint indices map!!!" << std::endl;
+                return false;
+              }
             }
           }
         }
-        // v.bone_names = {""};
-        // m.vertices[vert_index] = v;
       }
       meshes[mesh_index] = m;
     }
-
-    // Read in materials
-    std::vector<loader::material> materials;
-    const bool has_materials = scene->HasMaterials();
-    if (has_materials) {
-      for (size_t i = 0; i < scene->mNumMaterials; ++i) {
-        loader::material material;
-        const auto mat = scene->mMaterials[i];
-        aiString texturePath;
-        if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) ==
-            AI_SUCCESS) {
-          material.texture_path = std::string(texturePath.C_Str());
-          material.tex_type = loader::texture_type::DIFFUSE;
-        } else if (mat->GetTexture(aiTextureType_NORMALS, 0, &texturePath) ==
-            AI_SUCCESS) {
-          material.texture_path = std::string(texturePath.C_Str());
-          material.tex_type = loader::texture_type::NORMAL;
-        }
-        materials.push_back(material);
+  }
+  // Read in materials
+  const bool has_materials = scene->HasMaterials();
+  if (has_materials) {
+    for (size_t i = 0; i < scene->mNumMaterials; ++i) {
+      loader::material material;
+      const auto mat = scene->mMaterials[i];
+      aiString texturePath;
+      if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) ==
+          AI_SUCCESS) {
+        material.texture_path = std::string(texturePath.C_Str());
+        material.tex_type = loader::texture_type::DIFFUSE;
+      } else if (mat->GetTexture(aiTextureType_NORMALS, 0, &texturePath) ==
+                 AI_SUCCESS) {
+        material.texture_path = std::string(texturePath.C_Str());
+        material.tex_type = loader::texture_type::NORMAL;
+      } else if (mat->GetTexture(aiTextureType_SPECULAR, 0, &texturePath) ==
+                 AI_SUCCESS) {
+        material.texture_path = std::string(texturePath.C_Str());
+        material.tex_type = loader::texture_type::SPECULAR;
+      } else {
+        material.tex_type = loader::texture_type::NONE;
       }
+      materials.push_back(material);
+    }
+  }
+
+  // CapnProto builders
+  capnp::MallocMessageBuilder message;
+  Model::Builder model_output = message.initRoot<Model>();
+  capnp::List<Mesh>::Builder meshes_output =
+      model_output.initMeshes(meshes.size());
+  capnp::List<Material>::Builder materials_output =
+      model_output.initMaterials(materials.size());
+
+  // Create the mesh in capnproto
+  for (size_t i = 0; i < meshes.size(); ++i) {
+    Mesh::Builder m = meshes_output[i];
+    m.setTranslationX(meshes[i].translation[0]);
+    m.setTranslationY(meshes[i].translation[1]);
+    m.setTranslationZ(meshes[i].translation[2]);
+    m.setScaleX(meshes[i].scale[0]);
+    m.setScaleY(meshes[i].scale[1]);
+    m.setScaleZ(meshes[i].scale[2]);
+    m.setDimensionsX(meshes[i].dimensions[0]);
+    m.setDimensionsY(meshes[i].dimensions[1]);
+    m.setDimensionsZ(meshes[i].dimensions[2]);
+    m.setRotationX(meshes[i].rotation[0]);
+    m.setRotationY(meshes[i].rotation[1]);
+    m.setRotationZ(meshes[i].rotation[2]);
+    m.setRotationW(meshes[i].rotation[3]);
+    m.setName(meshes[i].name);
+    m.setMaterialIndex(meshes[i].material_index);
+
+    capnp::List<Array3f>::Builder positions =
+        m.initPositions(meshes[i].positions.size());
+    for (size_t j = 0; j < meshes[i].positions.size(); ++j) {
+      Array3f::Builder p = positions[j];
+      p.setArray3fX(meshes[i].positions[j][0]);
+      p.setArray3fY(meshes[i].positions[j][1]);
+      p.setArray3fZ(meshes[i].positions[j][2]);
     }
 
-    // CapnProto builders
-    capnp::MallocMessageBuilder message;
-    Model::Builder model_output = message.initRoot<Model>();
-    capnp::List<Mesh>::Builder meshes_output =
-        model_output.initMeshes(meshes.size());
-    capnp::List<Material>::Builder materials_output =
-        model_output.initMaterials(materials.size());
-
-    // Create the mesh in capnproto
-    for (size_t i = 0; i < meshes.size(); ++i) {
-      Mesh::Builder m = meshes_output[i];
-      m.setTranslationX(meshes[i].translation[0]);
-      m.setTranslationY(meshes[i].translation[1]);
-      m.setTranslationZ(meshes[i].translation[2]);
-      m.setScaleX(meshes[i].scale[0]);
-      m.setScaleY(meshes[i].scale[1]);
-      m.setScaleZ(meshes[i].scale[2]);
-      m.setDimensionsX(meshes[i].dimensions[0]);
-      m.setDimensionsY(meshes[i].dimensions[1]);
-      m.setDimensionsZ(meshes[i].dimensions[2]);
-      m.setRotationX(meshes[i].rotation[0]);
-      m.setRotationY(meshes[i].rotation[1]);
-      m.setRotationZ(meshes[i].rotation[2]);
-      m.setRotationW(meshes[i].rotation[3]);
-      m.setName(meshes[i].name);
-      m.setMaterialIndex(meshes[i].material_index);
-
-      capnp::List<Array3f>::Builder positions =
-          m.initPositions(meshes[i].positions.size());
-      for (size_t j = 0; j < meshes[i].positions.size(); ++j) {
-        Array3f::Builder p = positions[j];
-        p.setArray3fX(meshes[i].positions[j][0]);
-        p.setArray3fY(meshes[i].positions[j][1]);
-        p.setArray3fZ(meshes[i].positions[j][2]);
-      }
-
-      // capnp::List<size_t>::Builder indices =
-      m.initIndices(meshes[i].indices.size());
-      for (size_t j = 0; j < meshes[i].indices.size(); ++j) {
-        m.getIndices().set(j, meshes[i].indices[j]);
-      }
-
-      if (has_normals) {
-        capnp::List<Array3f>::Builder normals =
-            m.initNormals(meshes[i].normals.size());
-        for (size_t j = 0; j < meshes[i].normals.size(); ++j) {
-          Array3f::Builder n = normals[j];
-          n.setArray3fX(meshes[i].normals[j][0]);
-          n.setArray3fY(meshes[i].normals[j][1]);
-          n.setArray3fZ(meshes[i].normals[j][2]);
-        }
-      }
-
-      if (has_texcoords) {
-        capnp::List<Array2f>::Builder texcoords =
-            m.initUvs(meshes[i].uvs.size());
-        for (size_t j = 0; j < meshes[i].uvs.size(); ++j) {
-          Array2f::Builder t = texcoords[j];
-          t.setArray2fX(meshes[i].uvs[j][0]);
-          t.setArray2fY(meshes[i].uvs[j][1]);
-        }
-      }
-
-      if (has_bones) {
-        capnp::List<Array4u>::Builder bone_indices =
-            m.initBoneIndices(meshes[i].bone_indices.size());
-        for (size_t j = 0; j < meshes[i].bone_indices.size(); ++j) {
-          Array4u::Builder bi = bone_indices[j];
-          bi.setArray4uX(meshes[i].bone_indices[j][0]);
-          bi.setArray4uY(meshes[i].bone_indices[j][1]);
-          bi.setArray4uZ(meshes[i].bone_indices[j][2]);
-          bi.setArray4uW(meshes[i].bone_indices[j][3]);
-        }
-
-        capnp::List<Array4f>::Builder bone_weights =
-            m.initBoneWeights(meshes[i].bone_weights.size());
-        for (size_t j = 0; j < meshes[i].bone_weights.size(); ++j) {
-          Array4f::Builder bw = bone_weights[j];
-          bw.setArray4fX(meshes[i].bone_weights[j][0]);
-          bw.setArray4fY(meshes[i].bone_weights[j][1]);
-          bw.setArray4fZ(meshes[i].bone_weights[j][2]);
-          bw.setArray4fW(meshes[i].bone_weights[j][3]);
-        }
-
-        capnp::List<capnp::Text>::Builder bone_names =
-            m.initBoneNames(meshes[i].bone_names.size());
-        for (size_t j = 0; j < meshes[i].bone_names.size(); ++j) {
-          m.getBoneNames().set(j, meshes[i].bone_names[j]);
-        }
-      }
+    // capnp::List<size_t>::Builder indices =
+    m.initIndices(meshes[i].indices.size());
+    for (size_t j = 0; j < meshes[i].indices.size(); ++j) {
+      m.getIndices().set(j, meshes[i].indices[j]);
     }
 
-    // Create the material buffer in capnproto
-    for (size_t i = 0; i < materials.size(); ++i) {
-      Material::Builder m = materials_output[i];
-      m.setTextureType(static_cast<size_t>(materials[i].tex_type));
-      m.setTexturePath(materials[i].texture_path);
+    // if (has_normals) {
+    capnp::List<Array3f>::Builder normals =
+        m.initNormals(meshes[i].normals.size());
+    for (size_t j = 0; j < meshes[i].normals.size(); ++j) {
+      Array3f::Builder n = normals[j];
+      n.setArray3fX(meshes[i].normals[j][0]);
+      n.setArray3fY(meshes[i].normals[j][1]);
+      n.setArray3fZ(meshes[i].normals[j][2]);
+    }
+    //}
+
+    // if (has_texcoords) {
+    capnp::List<Array2f>::Builder texcoords = m.initUvs(meshes[i].uvs.size());
+    for (size_t j = 0; j < meshes[i].uvs.size(); ++j) {
+      Array2f::Builder t = texcoords[j];
+      t.setArray2fX(meshes[i].uvs[j][0]);
+      t.setArray2fY(meshes[i].uvs[j][1]);
+    }
+    // }
+
+    // if (has_bones) {
+    capnp::List<Array4u>::Builder bone_indices =
+        m.initBoneIndices(meshes[i].bone_indices.size());
+    for (size_t j = 0; j < meshes[i].bone_indices.size(); ++j) {
+      Array4u::Builder bi = bone_indices[j];
+      bi.setArray4uX(meshes[i].bone_indices[j][0]);
+      bi.setArray4uY(meshes[i].bone_indices[j][1]);
+      bi.setArray4uZ(meshes[i].bone_indices[j][2]);
+      bi.setArray4uW(meshes[i].bone_indices[j][3]);
     }
 
-
-    // NOW WE WRITE OUR SERIALIZED MODEL!
-    kj::VectorOutputStream output_stream;
-    // And write our mesage to the output stream
-    capnp::writePackedMessage(output_stream, message);
-    // auto words = capnp::messageToFlatArray(message);
-    // auto bytes = words.asBytes();
-    const auto array = output_stream.getArray();
-    auto iter = array.begin();
-    std::cout << "Message size: " << array.size() << std::endl;
-
-    std::vector<char> buffer;
-    while (iter != array.end()) {
-      buffer.push_back(*iter);
-      ++iter;
+    capnp::List<Array4f>::Builder bone_weights =
+        m.initBoneWeights(meshes[i].bone_weights.size());
+    for (size_t j = 0; j < meshes[i].bone_weights.size(); ++j) {
+      Array4f::Builder bw = bone_weights[j];
+      bw.setArray4fX(meshes[i].bone_weights[j][0]);
+      bw.setArray4fY(meshes[i].bone_weights[j][1]);
+      bw.setArray4fZ(meshes[i].bone_weights[j][2]);
+      bw.setArray4fW(meshes[i].bone_weights[j][3]);
     }
 
-    std::ofstream output_file;
-    output_file.open(output_pathname + "/model.bin", std::ios::binary);
-    for (unsigned char c : buffer) {
-      output_file.put(c);
+    capnp::List<capnp::Text>::Builder bone_names =
+        m.initBoneNames(meshes[i].bone_names.size());
+    for (size_t j = 0; j < meshes[i].bone_names.size(); ++j) {
+      m.getBoneNames().set(j, meshes[i].bone_names[j]);
     }
+    // }
+  }
 
-    std::cout << "Writing model file to " << output_pathname + "/model.bin"
-              << std::endl;
-    // std::cout << "Buffer size: " << buffer.size() << std::endl;
+  // Create the material buffer in capnproto
+  for (size_t i = 0; i < materials.size(); ++i) {
+    Material::Builder m = materials_output[i];
+    m.setTextureType(static_cast<size_t>(materials[i].tex_type));
+    m.setTexturePath(materials[i].texture_path);
+  }
 
-    output_file.close();
+  // NOW WE WRITE OUR SERIALIZED MODEL!
+  kj::VectorOutputStream output_stream;
+  // And write our mesage to the output stream
+  capnp::writePackedMessage(output_stream, message);
+  // auto words = capnp::messageToFlatArray(message);
+  // auto bytes = words.asBytes();
+  const auto array = output_stream.getArray();
+  auto iter = array.begin();
+  std::cout << "Message size: " << array.size() << std::endl;
 
+  std::vector<char> buffer;
+  while (iter != array.end()) {
+    buffer.push_back(*iter);
+    ++iter;
+  }
+
+  std::ofstream output_file;
+  output_file.open(output_pathname + "/model.bin", std::ios::binary);
+  for (unsigned char c : buffer) {
+    output_file.put(c);
+  }
+
+  std::cout << "Writing model file to " << output_pathname + "/model.bin"
+            << std::endl;
+  // std::cout << "Buffer size: " << buffer.size() << std::endl;
+
+  output_file.close();
+
+  if (has_bones) {
     std::vector<ozz::animation::offline::RawAnimation> raw_animations;
 
     size_t num_anims = scene->mNumAnimations;
+
     for (size_t anim_num = 0; anim_num < num_anims; ++anim_num) {
       aiAnimation *anim = scene->mAnimations[anim_num];
       double ticks = anim->mDuration;
