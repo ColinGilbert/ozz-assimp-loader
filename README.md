@@ -1,6 +1,6 @@
 Assimp can be a real pain to use with skeletal information.
 
-Therefore, I wrote a single-header utility that loads a file with Assimp, uses Lemon Graph Library (https://lemon.cs.elte.hu/trac/lemon) to parse it, and exports the info to ozz-animation's own binary format. Furthermore, it uses Cereal (http://uscilab.github.io/cereal/) to create a binary dump of the mesh and  their corresponding meshes into your game engine, all neatly bundled up and ready to use. As Lemon and Cereal are header-only, the only external dependencies are Assimp and Boost Filesystem. The example builds with CMake.
+Therefore, I wrote a single-header utility that loads a file with Assimp, uses Lemon Graph Library (https://lemon.cs.elte.hu/trac/lemon) to parse it, and exports the info to ozz-animation's own binary format. Furthermore, it uses CapnProto  to create a binary dump of the model and its corresponding meshes into your game engine, all neatly bundled up and ready to use.
 
 Relevant source files:
 ```
@@ -13,7 +13,8 @@ To build the example (*nix):
 git clone --recursive https://www.github.com/ColinGilbert/ozz-assimp-loader &&
 cd ozz-assimp-loader &&
 mkdir build &&
-./b
+cmake ..
+&& make
 ```
 
 To run the Assimp to ozz importer, run:

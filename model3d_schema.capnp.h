@@ -18,13 +18,76 @@ CAPNP_BEGIN_HEADER
 namespace capnp {
 namespace schemas {
 
+CAPNP_DECLARE_SCHEMA(8eb36abb46087506);
+CAPNP_DECLARE_SCHEMA(d8eafe7ae3f844e8);
+CAPNP_DECLARE_SCHEMA(83cf5bbc6b2d01e9);
+CAPNP_DECLARE_SCHEMA(d9cb3886c3a68a09);
 CAPNP_DECLARE_SCHEMA(e685971d9de46649);
-CAPNP_DECLARE_SCHEMA(bd8ee20095ad183c);
 CAPNP_DECLARE_SCHEMA(b7475b4c0dade189);
 
 }  // namespace schemas
 }  // namespace capnp
 
+
+struct Array4u {
+  Array4u() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(8eb36abb46087506, 4, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Array4f {
+  Array4f() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(d8eafe7ae3f844e8, 2, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Array3f {
+  Array3f() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(83cf5bbc6b2d01e9, 2, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Array2f {
+  Array2f() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(d9cb3886c3a68a09, 1, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
 
 struct Mesh {
   Mesh() = delete;
@@ -34,22 +97,7 @@ struct Mesh {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(e685971d9de46649, 7, 4)
-    #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
-    #endif  // !CAPNP_LITE
-  };
-};
-
-struct MeshVertex {
-  MeshVertex() = delete;
-
-  class Reader;
-  class Builder;
-  class Pipeline;
-
-  struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(bd8ee20095ad183c, 8, 0)
+    CAPNP_DECLARE_STRUCT_HEADER(e685971d9de46649, 7, 8)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -72,6 +120,355 @@ struct Model {
 };
 
 // =======================================================================================
+
+class Array4u::Reader {
+public:
+  typedef Array4u Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline  ::uint64_t getArray4uX() const;
+
+  inline  ::uint64_t getArray4uY() const;
+
+  inline  ::uint64_t getArray4uZ() const;
+
+  inline  ::uint64_t getArray4uW() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Array4u::Builder {
+public:
+  typedef Array4u Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline  ::uint64_t getArray4uX();
+  inline void setArray4uX( ::uint64_t value);
+
+  inline  ::uint64_t getArray4uY();
+  inline void setArray4uY( ::uint64_t value);
+
+  inline  ::uint64_t getArray4uZ();
+  inline void setArray4uZ( ::uint64_t value);
+
+  inline  ::uint64_t getArray4uW();
+  inline void setArray4uW( ::uint64_t value);
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Array4u::Pipeline {
+public:
+  typedef Array4u Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Array4f::Reader {
+public:
+  typedef Array4f Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline float getArray4fX() const;
+
+  inline float getArray4fY() const;
+
+  inline float getArray4fZ() const;
+
+  inline float getArray4fW() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Array4f::Builder {
+public:
+  typedef Array4f Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline float getArray4fX();
+  inline void setArray4fX(float value);
+
+  inline float getArray4fY();
+  inline void setArray4fY(float value);
+
+  inline float getArray4fZ();
+  inline void setArray4fZ(float value);
+
+  inline float getArray4fW();
+  inline void setArray4fW(float value);
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Array4f::Pipeline {
+public:
+  typedef Array4f Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Array3f::Reader {
+public:
+  typedef Array3f Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline float getArray3fX() const;
+
+  inline float getArray3fY() const;
+
+  inline float getArray3fZ() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Array3f::Builder {
+public:
+  typedef Array3f Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline float getArray3fX();
+  inline void setArray3fX(float value);
+
+  inline float getArray3fY();
+  inline void setArray3fY(float value);
+
+  inline float getArray3fZ();
+  inline void setArray3fZ(float value);
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Array3f::Pipeline {
+public:
+  typedef Array3f Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Array2f::Reader {
+public:
+  typedef Array2f Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline float getArray2fX() const;
+
+  inline float getArray2fY() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Array2f::Builder {
+public:
+  typedef Array2f Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline float getArray2fX();
+  inline void setArray2fX(float value);
+
+  inline float getArray2fY();
+  inline void setArray2fY(float value);
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Array2f::Pipeline {
+public:
+  typedef Array2f Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
 
 class Mesh::Reader {
 public:
@@ -119,11 +516,23 @@ public:
   inline bool hasName() const;
   inline  ::capnp::Text::Reader getName() const;
 
-  inline bool hasVertices() const;
-  inline  ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Reader getVertices() const;
-
   inline bool hasIndices() const;
   inline  ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Reader getIndices() const;
+
+  inline bool hasPositions() const;
+  inline  ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Reader getPositions() const;
+
+  inline bool hasNormals() const;
+  inline  ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Reader getNormals() const;
+
+  inline bool hasUvs() const;
+  inline  ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>::Reader getUvs() const;
+
+  inline bool hasBoneIndices() const;
+  inline  ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>::Reader getBoneIndices() const;
+
+  inline bool hasBoneWeights() const;
+  inline  ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>::Reader getBoneWeights() const;
 
   inline bool hasBoneNames() const;
   inline  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Reader getBoneNames() const;
@@ -202,13 +611,6 @@ public:
   inline void adoptName(::capnp::Orphan< ::capnp::Text>&& value);
   inline ::capnp::Orphan< ::capnp::Text> disownName();
 
-  inline bool hasVertices();
-  inline  ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Builder getVertices();
-  inline void setVertices( ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Reader value);
-  inline  ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Builder initVertices(unsigned int size);
-  inline void adoptVertices(::capnp::Orphan< ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>>&& value);
-  inline ::capnp::Orphan< ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>> disownVertices();
-
   inline bool hasIndices();
   inline  ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Builder getIndices();
   inline void setIndices( ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Reader value);
@@ -216,6 +618,41 @@ public:
   inline  ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Builder initIndices(unsigned int size);
   inline void adoptIndices(::capnp::Orphan< ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>>&& value);
   inline ::capnp::Orphan< ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>> disownIndices();
+
+  inline bool hasPositions();
+  inline  ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Builder getPositions();
+  inline void setPositions( ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Reader value);
+  inline  ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Builder initPositions(unsigned int size);
+  inline void adoptPositions(::capnp::Orphan< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>> disownPositions();
+
+  inline bool hasNormals();
+  inline  ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Builder getNormals();
+  inline void setNormals( ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Reader value);
+  inline  ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Builder initNormals(unsigned int size);
+  inline void adoptNormals(::capnp::Orphan< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>> disownNormals();
+
+  inline bool hasUvs();
+  inline  ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>::Builder getUvs();
+  inline void setUvs( ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>::Reader value);
+  inline  ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>::Builder initUvs(unsigned int size);
+  inline void adoptUvs(::capnp::Orphan< ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>> disownUvs();
+
+  inline bool hasBoneIndices();
+  inline  ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>::Builder getBoneIndices();
+  inline void setBoneIndices( ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>::Reader value);
+  inline  ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>::Builder initBoneIndices(unsigned int size);
+  inline void adoptBoneIndices(::capnp::Orphan< ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>> disownBoneIndices();
+
+  inline bool hasBoneWeights();
+  inline  ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>::Builder getBoneWeights();
+  inline void setBoneWeights( ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>::Reader value);
+  inline  ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>::Builder initBoneWeights(unsigned int size);
+  inline void adoptBoneWeights(::capnp::Orphan< ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>> disownBoneWeights();
 
   inline bool hasBoneNames();
   inline  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Builder getBoneNames();
@@ -238,157 +675,6 @@ private:
 class Mesh::Pipeline {
 public:
   typedef Mesh Pipelines;
-
-  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
-  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
-      : _typeless(kj::mv(typeless)) {}
-
-private:
-  ::capnp::AnyPointer::Pipeline _typeless;
-  friend class ::capnp::PipelineHook;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::ToDynamic_;
-};
-#endif  // !CAPNP_LITE
-
-class MeshVertex::Reader {
-public:
-  typedef MeshVertex Reads;
-
-  Reader() = default;
-  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
-
-  inline ::capnp::MessageSize totalSize() const {
-    return _reader.totalSize().asPublic();
-  }
-
-#if !CAPNP_LITE
-  inline ::kj::StringTree toString() const {
-    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
-  }
-#endif  // !CAPNP_LITE
-
-  inline float getPositionX() const;
-
-  inline float getPositionY() const;
-
-  inline float getPositionZ() const;
-
-  inline float getNormalX() const;
-
-  inline float getNormalY() const;
-
-  inline float getNormalZ() const;
-
-  inline float getUvX() const;
-
-  inline float getUvY() const;
-
-  inline  ::uint32_t getBoneIndexX() const;
-
-  inline  ::uint32_t getBoneIndexY() const;
-
-  inline  ::uint32_t getBoneIndexZ() const;
-
-  inline  ::uint32_t getBoneIndexW() const;
-
-  inline float getBoneWeightX() const;
-
-  inline float getBoneWeightY() const;
-
-  inline float getBoneWeightZ() const;
-
-  inline float getBoneWeightW() const;
-
-private:
-  ::capnp::_::StructReader _reader;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::ToDynamic_;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::_::PointerHelpers;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::List;
-  friend class ::capnp::MessageBuilder;
-  friend class ::capnp::Orphanage;
-};
-
-class MeshVertex::Builder {
-public:
-  typedef MeshVertex Builds;
-
-  Builder() = delete;  // Deleted to discourage incorrect usage.
-                       // You can explicitly initialize to nullptr instead.
-  inline Builder(decltype(nullptr)) {}
-  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
-  inline operator Reader() const { return Reader(_builder.asReader()); }
-  inline Reader asReader() const { return *this; }
-
-  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
-#if !CAPNP_LITE
-  inline ::kj::StringTree toString() const { return asReader().toString(); }
-#endif  // !CAPNP_LITE
-
-  inline float getPositionX();
-  inline void setPositionX(float value);
-
-  inline float getPositionY();
-  inline void setPositionY(float value);
-
-  inline float getPositionZ();
-  inline void setPositionZ(float value);
-
-  inline float getNormalX();
-  inline void setNormalX(float value);
-
-  inline float getNormalY();
-  inline void setNormalY(float value);
-
-  inline float getNormalZ();
-  inline void setNormalZ(float value);
-
-  inline float getUvX();
-  inline void setUvX(float value);
-
-  inline float getUvY();
-  inline void setUvY(float value);
-
-  inline  ::uint32_t getBoneIndexX();
-  inline void setBoneIndexX( ::uint32_t value);
-
-  inline  ::uint32_t getBoneIndexY();
-  inline void setBoneIndexY( ::uint32_t value);
-
-  inline  ::uint32_t getBoneIndexZ();
-  inline void setBoneIndexZ( ::uint32_t value);
-
-  inline  ::uint32_t getBoneIndexW();
-  inline void setBoneIndexW( ::uint32_t value);
-
-  inline float getBoneWeightX();
-  inline void setBoneWeightX(float value);
-
-  inline float getBoneWeightY();
-  inline void setBoneWeightY(float value);
-
-  inline float getBoneWeightZ();
-  inline void setBoneWeightZ(float value);
-
-  inline float getBoneWeightW();
-  inline void setBoneWeightW(float value);
-
-private:
-  ::capnp::_::StructBuilder _builder;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::ToDynamic_;
-  friend class ::capnp::Orphanage;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::_::PointerHelpers;
-};
-
-#if !CAPNP_LITE
-class MeshVertex::Pipeline {
-public:
-  typedef MeshVertex Pipelines;
 
   inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
@@ -484,6 +770,188 @@ private:
 #endif  // !CAPNP_LITE
 
 // =======================================================================================
+
+inline  ::uint64_t Array4u::Reader::getArray4uX() const {
+  return _reader.getDataField< ::uint64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline  ::uint64_t Array4u::Builder::getArray4uX() {
+  return _builder.getDataField< ::uint64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void Array4u::Builder::setArray4uX( ::uint64_t value) {
+  _builder.setDataField< ::uint64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+}
+
+inline  ::uint64_t Array4u::Reader::getArray4uY() const {
+  return _reader.getDataField< ::uint64_t>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+}
+
+inline  ::uint64_t Array4u::Builder::getArray4uY() {
+  return _builder.getDataField< ::uint64_t>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+}
+inline void Array4u::Builder::setArray4uY( ::uint64_t value) {
+  _builder.setDataField< ::uint64_t>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS, value);
+}
+
+inline  ::uint64_t Array4u::Reader::getArray4uZ() const {
+  return _reader.getDataField< ::uint64_t>(
+      ::capnp::bounded<2>() * ::capnp::ELEMENTS);
+}
+
+inline  ::uint64_t Array4u::Builder::getArray4uZ() {
+  return _builder.getDataField< ::uint64_t>(
+      ::capnp::bounded<2>() * ::capnp::ELEMENTS);
+}
+inline void Array4u::Builder::setArray4uZ( ::uint64_t value) {
+  _builder.setDataField< ::uint64_t>(
+      ::capnp::bounded<2>() * ::capnp::ELEMENTS, value);
+}
+
+inline  ::uint64_t Array4u::Reader::getArray4uW() const {
+  return _reader.getDataField< ::uint64_t>(
+      ::capnp::bounded<3>() * ::capnp::ELEMENTS);
+}
+
+inline  ::uint64_t Array4u::Builder::getArray4uW() {
+  return _builder.getDataField< ::uint64_t>(
+      ::capnp::bounded<3>() * ::capnp::ELEMENTS);
+}
+inline void Array4u::Builder::setArray4uW( ::uint64_t value) {
+  _builder.setDataField< ::uint64_t>(
+      ::capnp::bounded<3>() * ::capnp::ELEMENTS, value);
+}
+
+inline float Array4f::Reader::getArray4fX() const {
+  return _reader.getDataField<float>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline float Array4f::Builder::getArray4fX() {
+  return _builder.getDataField<float>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void Array4f::Builder::setArray4fX(float value) {
+  _builder.setDataField<float>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+}
+
+inline float Array4f::Reader::getArray4fY() const {
+  return _reader.getDataField<float>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+}
+
+inline float Array4f::Builder::getArray4fY() {
+  return _builder.getDataField<float>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+}
+inline void Array4f::Builder::setArray4fY(float value) {
+  _builder.setDataField<float>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS, value);
+}
+
+inline float Array4f::Reader::getArray4fZ() const {
+  return _reader.getDataField<float>(
+      ::capnp::bounded<2>() * ::capnp::ELEMENTS);
+}
+
+inline float Array4f::Builder::getArray4fZ() {
+  return _builder.getDataField<float>(
+      ::capnp::bounded<2>() * ::capnp::ELEMENTS);
+}
+inline void Array4f::Builder::setArray4fZ(float value) {
+  _builder.setDataField<float>(
+      ::capnp::bounded<2>() * ::capnp::ELEMENTS, value);
+}
+
+inline float Array4f::Reader::getArray4fW() const {
+  return _reader.getDataField<float>(
+      ::capnp::bounded<3>() * ::capnp::ELEMENTS);
+}
+
+inline float Array4f::Builder::getArray4fW() {
+  return _builder.getDataField<float>(
+      ::capnp::bounded<3>() * ::capnp::ELEMENTS);
+}
+inline void Array4f::Builder::setArray4fW(float value) {
+  _builder.setDataField<float>(
+      ::capnp::bounded<3>() * ::capnp::ELEMENTS, value);
+}
+
+inline float Array3f::Reader::getArray3fX() const {
+  return _reader.getDataField<float>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline float Array3f::Builder::getArray3fX() {
+  return _builder.getDataField<float>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void Array3f::Builder::setArray3fX(float value) {
+  _builder.setDataField<float>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+}
+
+inline float Array3f::Reader::getArray3fY() const {
+  return _reader.getDataField<float>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+}
+
+inline float Array3f::Builder::getArray3fY() {
+  return _builder.getDataField<float>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+}
+inline void Array3f::Builder::setArray3fY(float value) {
+  _builder.setDataField<float>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS, value);
+}
+
+inline float Array3f::Reader::getArray3fZ() const {
+  return _reader.getDataField<float>(
+      ::capnp::bounded<2>() * ::capnp::ELEMENTS);
+}
+
+inline float Array3f::Builder::getArray3fZ() {
+  return _builder.getDataField<float>(
+      ::capnp::bounded<2>() * ::capnp::ELEMENTS);
+}
+inline void Array3f::Builder::setArray3fZ(float value) {
+  _builder.setDataField<float>(
+      ::capnp::bounded<2>() * ::capnp::ELEMENTS, value);
+}
+
+inline float Array2f::Reader::getArray2fX() const {
+  return _reader.getDataField<float>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline float Array2f::Builder::getArray2fX() {
+  return _builder.getDataField<float>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void Array2f::Builder::setArray2fX(float value) {
+  _builder.setDataField<float>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+}
+
+inline float Array2f::Reader::getArray2fY() const {
+  return _reader.getDataField<float>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+}
+
+inline float Array2f::Builder::getArray2fY() {
+  return _builder.getDataField<float>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+}
+inline void Array2f::Builder::setArray2fY(float value) {
+  _builder.setDataField<float>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS, value);
+}
 
 inline float Mesh::Reader::getTranslationX() const {
   return _reader.getDataField<float>(
@@ -701,338 +1169,250 @@ inline ::capnp::Orphan< ::capnp::Text> Mesh::Builder::disownName() {
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
-inline bool Mesh::Reader::hasVertices() const {
-  return !_reader.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
-}
-inline bool Mesh::Builder::hasVertices() {
-  return !_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
-}
-inline  ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Reader Mesh::Reader::getVertices() const {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS));
-}
-inline  ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Builder Mesh::Builder::getVertices() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS));
-}
-inline void Mesh::Builder::setVertices( ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
-}
-inline  ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>::Builder Mesh::Builder::initVertices(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS), size);
-}
-inline void Mesh::Builder::adoptVertices(
-    ::capnp::Orphan< ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
-}
-inline ::capnp::Orphan< ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>> Mesh::Builder::disownVertices() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::MeshVertex,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS));
-}
-
 inline bool Mesh::Reader::hasIndices() const {
   return !_reader.getPointerField(
-      ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
 inline bool Mesh::Builder::hasIndices() {
   return !_builder.getPointerField(
-      ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
 inline  ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Reader Mesh::Reader::getIndices() const {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>>::get(_reader.getPointerField(
-      ::capnp::bounded<2>() * ::capnp::POINTERS));
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 inline  ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Builder Mesh::Builder::getIndices() {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>>::get(_builder.getPointerField(
-      ::capnp::bounded<2>() * ::capnp::POINTERS));
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 inline void Mesh::Builder::setIndices( ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Reader value) {
   ::capnp::_::PointerHelpers< ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>>::set(_builder.getPointerField(
-      ::capnp::bounded<2>() * ::capnp::POINTERS), value);
+      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
 }
 inline void Mesh::Builder::setIndices(::kj::ArrayPtr<const  ::uint64_t> value) {
   ::capnp::_::PointerHelpers< ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>>::set(_builder.getPointerField(
-      ::capnp::bounded<2>() * ::capnp::POINTERS), value);
+      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
 }
 inline  ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>::Builder Mesh::Builder::initIndices(unsigned int size) {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>>::init(_builder.getPointerField(
-      ::capnp::bounded<2>() * ::capnp::POINTERS), size);
+      ::capnp::bounded<1>() * ::capnp::POINTERS), size);
 }
 inline void Mesh::Builder::adoptIndices(
     ::capnp::Orphan< ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>>&& value) {
   ::capnp::_::PointerHelpers< ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>>::adopt(_builder.getPointerField(
-      ::capnp::bounded<2>() * ::capnp::POINTERS), kj::mv(value));
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
 }
 inline ::capnp::Orphan< ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>> Mesh::Builder::disownIndices() {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::uint64_t,  ::capnp::Kind::PRIMITIVE>>::disown(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+
+inline bool Mesh::Reader::hasPositions() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
+}
+inline bool Mesh::Builder::hasPositions() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Reader Mesh::Reader::getPositions() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+inline  ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Builder Mesh::Builder::getPositions() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+inline void Mesh::Builder::setPositions( ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Builder Mesh::Builder::initPositions(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), size);
+}
+inline void Mesh::Builder::adoptPositions(
+    ::capnp::Orphan< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>> Mesh::Builder::disownPositions() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+
+inline bool Mesh::Reader::hasNormals() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
+}
+inline bool Mesh::Builder::hasNormals() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Reader Mesh::Reader::getNormals() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+inline  ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Builder Mesh::Builder::getNormals() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+inline void Mesh::Builder::setNormals( ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>::Builder Mesh::Builder::initNormals(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS), size);
+}
+inline void Mesh::Builder::adoptNormals(
+    ::capnp::Orphan< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>> Mesh::Builder::disownNormals() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array3f,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+
+inline bool Mesh::Reader::hasUvs() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS).isNull();
+}
+inline bool Mesh::Builder::hasUvs() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>::Reader Mesh::Reader::getUvs() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS));
+}
+inline  ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>::Builder Mesh::Builder::getUvs() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS));
+}
+inline void Mesh::Builder::setUvs( ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>::Builder Mesh::Builder::initUvs(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS), size);
+}
+inline void Mesh::Builder::adoptUvs(
+    ::capnp::Orphan< ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>> Mesh::Builder::disownUvs() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array2f,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS));
+}
+
+inline bool Mesh::Reader::hasBoneIndices() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS).isNull();
+}
+inline bool Mesh::Builder::hasBoneIndices() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>::Reader Mesh::Reader::getBoneIndices() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS));
+}
+inline  ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>::Builder Mesh::Builder::getBoneIndices() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS));
+}
+inline void Mesh::Builder::setBoneIndices( ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>::Builder Mesh::Builder::initBoneIndices(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS), size);
+}
+inline void Mesh::Builder::adoptBoneIndices(
+    ::capnp::Orphan< ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>> Mesh::Builder::disownBoneIndices() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array4u,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
+      ::capnp::bounded<5>() * ::capnp::POINTERS));
+}
+
+inline bool Mesh::Reader::hasBoneWeights() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS).isNull();
+}
+inline bool Mesh::Builder::hasBoneWeights() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>::Reader Mesh::Reader::getBoneWeights() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS));
+}
+inline  ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>::Builder Mesh::Builder::getBoneWeights() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS));
+}
+inline void Mesh::Builder::setBoneWeights( ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>::Builder Mesh::Builder::initBoneWeights(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS), size);
+}
+inline void Mesh::Builder::adoptBoneWeights(
+    ::capnp::Orphan< ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>> Mesh::Builder::disownBoneWeights() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::Array4f,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
+      ::capnp::bounded<6>() * ::capnp::POINTERS));
 }
 
 inline bool Mesh::Reader::hasBoneNames() const {
   return !_reader.getPointerField(
-      ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
+      ::capnp::bounded<7>() * ::capnp::POINTERS).isNull();
 }
 inline bool Mesh::Builder::hasBoneNames() {
   return !_builder.getPointerField(
-      ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
+      ::capnp::bounded<7>() * ::capnp::POINTERS).isNull();
 }
 inline  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Reader Mesh::Reader::getBoneNames() const {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>>::get(_reader.getPointerField(
-      ::capnp::bounded<3>() * ::capnp::POINTERS));
+      ::capnp::bounded<7>() * ::capnp::POINTERS));
 }
 inline  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Builder Mesh::Builder::getBoneNames() {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>>::get(_builder.getPointerField(
-      ::capnp::bounded<3>() * ::capnp::POINTERS));
+      ::capnp::bounded<7>() * ::capnp::POINTERS));
 }
 inline void Mesh::Builder::setBoneNames( ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Reader value) {
   ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>>::set(_builder.getPointerField(
-      ::capnp::bounded<3>() * ::capnp::POINTERS), value);
+      ::capnp::bounded<7>() * ::capnp::POINTERS), value);
 }
 inline void Mesh::Builder::setBoneNames(::kj::ArrayPtr<const  ::capnp::Text::Reader> value) {
   ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>>::set(_builder.getPointerField(
-      ::capnp::bounded<3>() * ::capnp::POINTERS), value);
+      ::capnp::bounded<7>() * ::capnp::POINTERS), value);
 }
 inline  ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>::Builder Mesh::Builder::initBoneNames(unsigned int size) {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>>::init(_builder.getPointerField(
-      ::capnp::bounded<3>() * ::capnp::POINTERS), size);
+      ::capnp::bounded<7>() * ::capnp::POINTERS), size);
 }
 inline void Mesh::Builder::adoptBoneNames(
     ::capnp::Orphan< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>>&& value) {
   ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>>::adopt(_builder.getPointerField(
-      ::capnp::bounded<3>() * ::capnp::POINTERS), kj::mv(value));
+      ::capnp::bounded<7>() * ::capnp::POINTERS), kj::mv(value));
 }
 inline ::capnp::Orphan< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>> Mesh::Builder::disownBoneNames() {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>>::disown(_builder.getPointerField(
-      ::capnp::bounded<3>() * ::capnp::POINTERS));
-}
-
-inline float MeshVertex::Reader::getPositionX() const {
-  return _reader.getDataField<float>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
-}
-
-inline float MeshVertex::Builder::getPositionX() {
-  return _builder.getDataField<float>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setPositionX(float value) {
-  _builder.setDataField<float>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
-}
-
-inline float MeshVertex::Reader::getPositionY() const {
-  return _reader.getDataField<float>(
-      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
-}
-
-inline float MeshVertex::Builder::getPositionY() {
-  return _builder.getDataField<float>(
-      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setPositionY(float value) {
-  _builder.setDataField<float>(
-      ::capnp::bounded<1>() * ::capnp::ELEMENTS, value);
-}
-
-inline float MeshVertex::Reader::getPositionZ() const {
-  return _reader.getDataField<float>(
-      ::capnp::bounded<2>() * ::capnp::ELEMENTS);
-}
-
-inline float MeshVertex::Builder::getPositionZ() {
-  return _builder.getDataField<float>(
-      ::capnp::bounded<2>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setPositionZ(float value) {
-  _builder.setDataField<float>(
-      ::capnp::bounded<2>() * ::capnp::ELEMENTS, value);
-}
-
-inline float MeshVertex::Reader::getNormalX() const {
-  return _reader.getDataField<float>(
-      ::capnp::bounded<3>() * ::capnp::ELEMENTS);
-}
-
-inline float MeshVertex::Builder::getNormalX() {
-  return _builder.getDataField<float>(
-      ::capnp::bounded<3>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setNormalX(float value) {
-  _builder.setDataField<float>(
-      ::capnp::bounded<3>() * ::capnp::ELEMENTS, value);
-}
-
-inline float MeshVertex::Reader::getNormalY() const {
-  return _reader.getDataField<float>(
-      ::capnp::bounded<4>() * ::capnp::ELEMENTS);
-}
-
-inline float MeshVertex::Builder::getNormalY() {
-  return _builder.getDataField<float>(
-      ::capnp::bounded<4>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setNormalY(float value) {
-  _builder.setDataField<float>(
-      ::capnp::bounded<4>() * ::capnp::ELEMENTS, value);
-}
-
-inline float MeshVertex::Reader::getNormalZ() const {
-  return _reader.getDataField<float>(
-      ::capnp::bounded<5>() * ::capnp::ELEMENTS);
-}
-
-inline float MeshVertex::Builder::getNormalZ() {
-  return _builder.getDataField<float>(
-      ::capnp::bounded<5>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setNormalZ(float value) {
-  _builder.setDataField<float>(
-      ::capnp::bounded<5>() * ::capnp::ELEMENTS, value);
-}
-
-inline float MeshVertex::Reader::getUvX() const {
-  return _reader.getDataField<float>(
-      ::capnp::bounded<6>() * ::capnp::ELEMENTS);
-}
-
-inline float MeshVertex::Builder::getUvX() {
-  return _builder.getDataField<float>(
-      ::capnp::bounded<6>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setUvX(float value) {
-  _builder.setDataField<float>(
-      ::capnp::bounded<6>() * ::capnp::ELEMENTS, value);
-}
-
-inline float MeshVertex::Reader::getUvY() const {
-  return _reader.getDataField<float>(
-      ::capnp::bounded<7>() * ::capnp::ELEMENTS);
-}
-
-inline float MeshVertex::Builder::getUvY() {
-  return _builder.getDataField<float>(
-      ::capnp::bounded<7>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setUvY(float value) {
-  _builder.setDataField<float>(
-      ::capnp::bounded<7>() * ::capnp::ELEMENTS, value);
-}
-
-inline  ::uint32_t MeshVertex::Reader::getBoneIndexX() const {
-  return _reader.getDataField< ::uint32_t>(
-      ::capnp::bounded<8>() * ::capnp::ELEMENTS);
-}
-
-inline  ::uint32_t MeshVertex::Builder::getBoneIndexX() {
-  return _builder.getDataField< ::uint32_t>(
-      ::capnp::bounded<8>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setBoneIndexX( ::uint32_t value) {
-  _builder.setDataField< ::uint32_t>(
-      ::capnp::bounded<8>() * ::capnp::ELEMENTS, value);
-}
-
-inline  ::uint32_t MeshVertex::Reader::getBoneIndexY() const {
-  return _reader.getDataField< ::uint32_t>(
-      ::capnp::bounded<9>() * ::capnp::ELEMENTS);
-}
-
-inline  ::uint32_t MeshVertex::Builder::getBoneIndexY() {
-  return _builder.getDataField< ::uint32_t>(
-      ::capnp::bounded<9>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setBoneIndexY( ::uint32_t value) {
-  _builder.setDataField< ::uint32_t>(
-      ::capnp::bounded<9>() * ::capnp::ELEMENTS, value);
-}
-
-inline  ::uint32_t MeshVertex::Reader::getBoneIndexZ() const {
-  return _reader.getDataField< ::uint32_t>(
-      ::capnp::bounded<10>() * ::capnp::ELEMENTS);
-}
-
-inline  ::uint32_t MeshVertex::Builder::getBoneIndexZ() {
-  return _builder.getDataField< ::uint32_t>(
-      ::capnp::bounded<10>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setBoneIndexZ( ::uint32_t value) {
-  _builder.setDataField< ::uint32_t>(
-      ::capnp::bounded<10>() * ::capnp::ELEMENTS, value);
-}
-
-inline  ::uint32_t MeshVertex::Reader::getBoneIndexW() const {
-  return _reader.getDataField< ::uint32_t>(
-      ::capnp::bounded<11>() * ::capnp::ELEMENTS);
-}
-
-inline  ::uint32_t MeshVertex::Builder::getBoneIndexW() {
-  return _builder.getDataField< ::uint32_t>(
-      ::capnp::bounded<11>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setBoneIndexW( ::uint32_t value) {
-  _builder.setDataField< ::uint32_t>(
-      ::capnp::bounded<11>() * ::capnp::ELEMENTS, value);
-}
-
-inline float MeshVertex::Reader::getBoneWeightX() const {
-  return _reader.getDataField<float>(
-      ::capnp::bounded<12>() * ::capnp::ELEMENTS);
-}
-
-inline float MeshVertex::Builder::getBoneWeightX() {
-  return _builder.getDataField<float>(
-      ::capnp::bounded<12>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setBoneWeightX(float value) {
-  _builder.setDataField<float>(
-      ::capnp::bounded<12>() * ::capnp::ELEMENTS, value);
-}
-
-inline float MeshVertex::Reader::getBoneWeightY() const {
-  return _reader.getDataField<float>(
-      ::capnp::bounded<13>() * ::capnp::ELEMENTS);
-}
-
-inline float MeshVertex::Builder::getBoneWeightY() {
-  return _builder.getDataField<float>(
-      ::capnp::bounded<13>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setBoneWeightY(float value) {
-  _builder.setDataField<float>(
-      ::capnp::bounded<13>() * ::capnp::ELEMENTS, value);
-}
-
-inline float MeshVertex::Reader::getBoneWeightZ() const {
-  return _reader.getDataField<float>(
-      ::capnp::bounded<14>() * ::capnp::ELEMENTS);
-}
-
-inline float MeshVertex::Builder::getBoneWeightZ() {
-  return _builder.getDataField<float>(
-      ::capnp::bounded<14>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setBoneWeightZ(float value) {
-  _builder.setDataField<float>(
-      ::capnp::bounded<14>() * ::capnp::ELEMENTS, value);
-}
-
-inline float MeshVertex::Reader::getBoneWeightW() const {
-  return _reader.getDataField<float>(
-      ::capnp::bounded<15>() * ::capnp::ELEMENTS);
-}
-
-inline float MeshVertex::Builder::getBoneWeightW() {
-  return _builder.getDataField<float>(
-      ::capnp::bounded<15>() * ::capnp::ELEMENTS);
-}
-inline void MeshVertex::Builder::setBoneWeightW(float value) {
-  _builder.setDataField<float>(
-      ::capnp::bounded<15>() * ::capnp::ELEMENTS, value);
+      ::capnp::bounded<7>() * ::capnp::POINTERS));
 }
 
 inline bool Model::Reader::hasMeshes() const {

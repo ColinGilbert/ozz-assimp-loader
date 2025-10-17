@@ -41,12 +41,26 @@ class loader
 			std::array<float, 4> bone_weights;
 		};
 
+		// struct mesh
+		// {
+		// 	std::array<float, 3> translation, scale, dimensions;
+		// 	std::array<float, 4> rotation;
+		// 	std::string name;
+		// 	std::vector<mesh_vertex> vertices;
+		// 	std::vector<uint32_t> indices;
+		// 	std::vector<std::string> bone_names;
+		// };
+
 		struct mesh
 		{
 			std::array<float, 3> translation, scale, dimensions;
 			std::array<float, 4> rotation;
 			std::string name;
-			std::vector<mesh_vertex> vertices;
+			std::vector<std::array<float, 3>> positions, normals;
+			std::vector<std::array<float, 2>> uvs;
+			std::vector<std::array<std::string,4>> vert_bone_names; // Used to calculate bone indices and weights
+			std::vector<std::array<size_t, 4>> bone_indices;
+			std::vector<std::array<float, 4>> bone_weights;
 			std::vector<uint32_t> indices;
 			std::vector<std::string> bone_names;
 		};

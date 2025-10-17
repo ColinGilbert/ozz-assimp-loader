@@ -193,11 +193,14 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     size_t num_verts = mesh_data->mNumVertices;
     size_t num_faces = mesh_data->mNumFaces;
     size_t num_bones = mesh_data->mNumBones;
+    bool has_bones = mesh_data->HasBones();
     bool has_normals = mesh_data->HasNormals();
     bool has_texcoords = mesh_data->HasTextureCoords(0);
 
-    std::cout << "Mesh " << temp_mesh.name << " (" << mesh_num << ") has " << num_verts
-              << " verts and " << num_bones << " bones. Normals? "
+    temp_mesh.positions.reserve(num_verts);
+
+    std::cout << "Mesh " << temp_mesh.name << " (" << mesh_num << ") has "
+              << num_verts << " verts and " << num_bones << " bones. Normals? "
               << has_normals << std::endl;
 
     std::array<float, 3> min_extents, max_extents;
@@ -205,31 +208,31 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     for (size_t n = 0; n < num_verts; ++n) {
       aiVector3D pt = mesh_data->mVertices[n];
 
-      mesh_vertex v;
-      v.position[0] = pt[0];
-      v.position[1] = pt[1];
-      v.position[2] = pt[2];
+      // mesh_vertex v;
+      temp_mesh.positions[n][0] = pt[0];
+      temp_mesh.positions[n][1] = pt[1];
+      temp_mesh.positions[n][2] = pt[2];
 
-      min_extents[0] = std::min(min_extents[0], v.position[0]);
-      min_extents[1] = std::min(min_extents[1], v.position[1]);
-      min_extents[2] = std::min(min_extents[2], v.position[2]);
-      max_extents[0] = std::max(max_extents[0], v.position[0]);
-      max_extents[1] = std::max(max_extents[1], v.position[1]);
-      max_extents[2] = std::max(max_extents[2], v.position[2]);
+      min_extents[0] = std::min(min_extents[0], pt[0]);
+      min_extents[1] = std::min(min_extents[1], pt[1]);
+      min_extents[2] = std::min(min_extents[2], pt[2]);
+      max_extents[0] = std::max(max_extents[0], pt[0]);
+      max_extents[1] = std::max(max_extents[1], pt[1]);
+      max_extents[2] = std::max(max_extents[2], pt[2]);
 
       if (has_normals) {
+        temp_mesh.normals.reserve(num_verts);
         aiVector3D normal = mesh_data->mNormals[n];
-        v.normal[0] = normal[0];
-        v.normal[1] = normal[1];
-        v.normal[2] = normal[2];
+        temp_mesh.normals[n][0] = normal[0];
+        temp_mesh.normals[n][1] = normal[1];
+        temp_mesh.normals[n][2] = normal[2];
       }
       if (has_texcoords) {
-        aiVector3D *uv = mesh_data->mTextureCoords[0];
-        v.uv[0] = uv->x;
-        v.uv[1] = uv->y;
+        temp_mesh.uvs.reserve(num_verts);
+        aiVector3D uv = mesh_data->mTextureCoords[0][n];
+        temp_mesh.uvs[n][0] = uv.x;
+        temp_mesh.uvs[n][1] = uv.y;
       }
-
-      temp_mesh.vertices.push_back(v);
     }
 
     std::array<float, 3> temp_dims;
@@ -247,397 +250,441 @@ bool loader::load(const aiScene *scene, const std::string &name) {
       }
     }
 
-    for (size_t n = 0; n < num_bones; ++n) {
-      aiBone *bone_data = mesh_data->mBones[n];
-      std::string temp_bone_name = std::string(bone_data->mName.C_Str());
-      temp_mesh.bone_names.push_back(temp_bone_name);
+    if (has_bones) {
+      temp_mesh.vert_bone_names.resize(num_verts);
+      // temp_mesh.bone_names.reserve(num_bones);
+      temp_mesh.bone_indices.resize(num_verts);
+      temp_mesh.bone_weights.resize(num_verts);
 
-      // Make sure to keep track of every bone in the scene (in order to account
-      // for multimesh models)
-      scene_bone_names.insert(temp_bone_name);
+      for (size_t n = 0; n < num_bones; ++n) {
+        aiBone *bone_data = mesh_data->mBones[n];
+        std::string temp_bone_name = std::string(bone_data->mName.C_Str());
+        // TODO: Remove
+        std::cout << "WAYPOINT 1" << std::endl;
+        std::cout << temp_bone_name << " " << temp_mesh.bone_names.size()
+                  << std::endl;
+        temp_mesh.bone_names.push_back(temp_bone_name);
+        std::cout << "WAYPOINT 2" << std::endl;
 
-      // Store the bone names and weights in the vert data.
-      for (uint32_t i = 0; i < bone_data->mNumWeights; ++i) {
-        uint32_t bone_vertex_id = bone_data->mWeights[i].mVertexId;
-        // if (bone_vertex_id < static_cast<uint32_t>(mesh_data->mNumVertices))
-        //{
-        auto vert = temp_mesh.vertices[bone_vertex_id];
-        for (size_t j = 0; j < 4; ++j) {
-          if (vert.bone_weights[j] == 0.0) {
-            vert.bone_names[j] = temp_bone_name;
-            vert.bone_weights[j] = bone_data->mWeights[i].mWeight;
-            break;
-          }
-        }
-        temp_mesh.vertices[bone_vertex_id] = vert;
-        //}
+        // Make sure to keep track of every bone in the scene (in order to
+        // account for multimesh models)
+        scene_bone_names.insert(temp_bone_name);
+        std::cout << "WAYPOINT 3. num verts" << num_verts << std::endl;
+        // Store the bone names and weights in the vert data.
+        for (uint32_t i = 0; i < bone_data->mNumWeights; ++i) {
+          size_t bone_vertex_id = bone_data->mWeights[i].mVertexId;
 
-        // else
-        //{
-        //	std::cout << "Vertex ID of Assimp bone higher than actual vertex
-        // count. Skipping." << std::endl;
-        // }
-      }
-    }
-    meshes.push_back(temp_mesh);
-  }
-
-  std::cout << "Total of " << meshes.size() << " meshes in file " << name << "."
-            << std::endl;
-
-  //   for (mesh m : meshes) {
-  //     std::cout << "Bones for mesh " << m.name << ":";
-  //     for (std::string s : m.bone_names) {
-  //       std::cout << " " << s;
-  //     }
-  //     std::cout << std::endl;
-  //   }
-
-  loader::hierarchy bone_hierarchy;
-
-  bone_hierarchy.init(scene, scene_bone_names);
-
-  bone_hierarchy.print_info();
-
-  ozz::animation::offline::RawSkeleton raw_skel =
-      bone_hierarchy.make_raw_skeleton();
-
-  if (!raw_skel.Validate()) {
-    std::cout << "Skeleton validation failed!" << std::endl;
-    return false;
-  } else {
-    std::cout << "Skeleton validation success!" << std::endl;
-  }
-
-  ozz::animation::offline::SkeletonBuilder skel_builder;
-  std::unique_ptr<ozz::animation::Skeleton,
-                  ozz::Deleter<ozz::animation::Skeleton>>
-      runtime_skel = skel_builder(raw_skel);
-
-  std::string output_base_pathname = "./output/";
-
-  try {
-    boost::filesystem::create_directory(
-        boost::filesystem::path(output_base_pathname));
-  } catch (std::exception &e) {
-    std::cout << "Could not create base path: " << output_base_pathname;
-    return false;
-  }
-  output_pathname = output_base_pathname + name;
-
-  try {
-    boost::filesystem::create_directory(
-        boost::filesystem::path(output_pathname));
-  }
-
-  catch (std::exception &e) {
-    std::cout << "Could not create path: " << output_pathname;
-    return false;
-  }
-
-  // Most of the time, the user will want to use the runtime skeleton, but at
-  // this point we give option for both.
-  std::ostringstream output_raw_skel_filename;
-  output_raw_skel_filename << output_pathname << "/raw-skeleton.ozz";
-  std::string filename = output_raw_skel_filename.str();
-  std::cout << "Outputting raw skeleton to " << output_raw_skel_filename.str()
-            << std::endl;
-  ozz::io::File output_raw_skel_file(output_raw_skel_filename.str().c_str(),
-                                     "wb");
-  ozz::io::OArchive raw_skel_archive(&output_raw_skel_file);
-  raw_skel_archive << raw_skel;
-
-  std::ostringstream output_runtime_skel_filename;
-  output_runtime_skel_filename << output_pathname << "/runtime-skeleton.ozz";
-  std::cout << "Outputting runtime skeleton to "
-            << output_runtime_skel_filename.str() << std::endl;
-  ozz::io::File output_runtime_skel_file(
-      output_runtime_skel_filename.str().c_str(), "wb");
-  ozz::io::OArchive runtime_skel_archive(&output_runtime_skel_file);
-  runtime_skel_archive << *runtime_skel;
-
-  // This bit of code allows the animation to use the skeleton indices from the
-  // ozz skeleton structure.
-  // TODO: Find out if necessary.
-  ozz::span<const char *const> joint_names = runtime_skel->joint_names();
-  size_t num_joints = runtime_skel->num_joints();
-
-  std::vector<std::string> joint_names_str;
-  std::unordered_map<std::string, size_t> joint_indices;
-
-  for (size_t i = 0; i < num_joints; ++i) {
-    std::string s = std::string(joint_names[i]);
-    joint_indices.insert(std::make_pair(s, i));
-    joint_names_str.push_back(s);
-  }
-
-  // std::cout << "Displaying ozz skeleton joint names and indices" <<
-  // std::endl;
-
-  //   for (auto it = joint_indices.begin(); it != joint_indices.end(); it++) {
-  //     std::cout << "Name = " << it->first << ", index = " << it->second
-  //               << std::endl;
-  //   }
-  // Now, get the bone names from each vertex and insert the matching bone
-  // indices.
-  for (size_t mesh_index = 0; mesh_index < meshes.size(); ++mesh_index) {
-    mesh m = meshes[mesh_index];
-    m.bone_names = joint_names_str;
-    std::cout << std::endl;
-    for (size_t vert_index = 0; vert_index < m.vertices.size(); ++vert_index) {
-      mesh_vertex v = m.vertices[vert_index];
-      for (size_t i = 0; i < v.bone_names.size(); ++i) {
-        std::string s = v.bone_names[i];
-
-        if (!s.empty()) {
-          auto it = joint_indices.find(s);
-          if (it != joint_indices.end()) {
-            v.bone_indices[i] = joint_indices.find(s)->second;
-            // std::cout << "Found index " << v.bone_indices[i]
-            //           << " for bone name " << v.bone_names[i] << std::endl;
-          } else {
-            std::cout << "ERROR! Could not find bone index for " << s
-                      << " in joint indices map!!!" << std::endl;
-            return false;
+          for (size_t j = 0; j < 4; ++j) {
+            if (temp_mesh.bone_weights[bone_vertex_id][j] == 0.0) {
+              std::cout << "WAYPOINT 4 Bone Vertex id" << bone_vertex_id << std::endl;
+              temp_mesh.vert_bone_names[bone_vertex_id][j] = temp_bone_name;
+              std::cout << "WAYPOINT 5" << std::endl;
+              temp_mesh.bone_weights[bone_vertex_id][j] =
+                  bone_data->mWeights[i].mWeight;
+              std::cout << "WAYPOINT 6" << std::endl;
+              break;
+            }
           }
         }
       }
-      v.bone_names = {""};
-      m.vertices[vert_index] = v;
-    }
-    meshes[mesh_index] = m;
-  }
-
-  // Now we create the mesh buffer in capnproto
-  capnp::MallocMessageBuilder message;
-  Model::Builder model_output = message.initRoot<Model>();
-  capnp::List<Mesh>::Builder meshes_output =
-      model_output.initMeshes(meshes.size());
-
-  for (size_t i = 0; i < meshes.size(); ++i) {
-    Mesh::Builder m = meshes_output[i];
-    m.setTranslationX(meshes[i].translation[0]);
-    m.setTranslationY(meshes[i].translation[1]);
-    m.setTranslationZ(meshes[i].translation[2]);
-    m.setScaleX(meshes[i].scale[0]);
-    m.setScaleY(meshes[i].scale[1]);
-    m.setScaleZ(meshes[i].scale[2]);
-    m.setDimensionsX(meshes[i].dimensions[0]);
-    m.setDimensionsY(meshes[i].dimensions[1]);
-    m.setDimensionsZ(meshes[i].dimensions[2]);
-    m.setRotationX(meshes[i].rotation[0]);
-    m.setRotationY(meshes[i].rotation[1]);
-    m.setRotationZ(meshes[i].rotation[2]);
-    m.setRotationW(meshes[i].rotation[3]);
-    m.setName(meshes[i].name);
-    capnp::List<MeshVertex>::Builder verts =
-        m.initVertices(meshes[i].vertices.size());
-    for (size_t j = 0; j < meshes[i].vertices.size(); ++j) {
-      MeshVertex::Builder v = verts[j];
-      v.setPositionX(meshes[i].vertices[j].position[0]);
-      v.setPositionY(meshes[i].vertices[j].position[1]);
-      v.setPositionZ(meshes[i].vertices[j].position[2]);
-      v.setNormalX(meshes[i].vertices[j].normal[0]);
-      v.setNormalY(meshes[i].vertices[j].normal[1]);
-      v.setNormalZ(meshes[i].vertices[j].normal[2]);
-      v.setUvX(meshes[i].vertices[j].uv[0]);
-      v.setUvY(meshes[i].vertices[j].uv[1]);
-      v.setBoneIndexX(meshes[i].vertices[j].bone_indices[0]);
-      v.setBoneIndexY(meshes[i].vertices[j].bone_indices[1]);
-      v.setBoneIndexZ(meshes[i].vertices[j].bone_indices[2]);
-      v.setBoneIndexW(meshes[i].vertices[j].bone_indices[3]);
-      v.setBoneWeightX(meshes[i].vertices[j].bone_weights[0]);
-      v.setBoneWeightY(meshes[i].vertices[j].bone_weights[1]);
-      v.setBoneWeightZ(meshes[i].vertices[j].bone_weights[2]);
-      v.setBoneWeightW(meshes[i].vertices[j].bone_weights[3]);
-    }
-    capnp::List<size_t>::Builder indices =
-        m.initIndices(meshes[i].indices.size());
-    for (size_t j = 0; j < meshes[i].indices.size(); ++j) {
-      m.getIndices().set(j, meshes[i].indices[j]);
-    }
-    capnp::List<capnp::Text>::Builder bone_names =
-        m.initBoneNames(meshes[i].bone_names.size());
-    for (size_t j = 0; j < meshes[i].bone_names.size(); ++j) {
-      m.getBoneNames().set(j, meshes[i].bone_names[j]);
-    }
-  }
-
-  kj::VectorOutputStream output_stream;
-  // And write our mesage to the output stream
-   capnp::writePackedMessage(output_stream, message);
-  //auto words = capnp::messageToFlatArray(message);
-  //auto bytes = words.asBytes();
-  const auto array = output_stream.getArray();
-  auto iter = array.begin();
-  std::cout << "Message size: " << array.size() << std::endl;
-  std::vector<char> buffer;
-  while (iter != array.end()) {
-    buffer.push_back(*iter);
-    ++iter;
-  }
-
-  std::ofstream output_file;
-  output_file.open(output_pathname + "/meshes.bin", std::ios::binary);
-  for (unsigned char c : buffer) {
-    output_file.put(c);
-  }
-
-  std::cout << "Buffer size: " << buffer.size() << std::endl;
-
-  output_file.close();
-
-  std::vector<ozz::animation::offline::RawAnimation> raw_animations;
-
-  size_t num_anims = scene->mNumAnimations;
-  for (size_t anim_num = 0; anim_num < num_anims; ++anim_num) {
-    aiAnimation *anim = scene->mAnimations[anim_num];
-    double ticks = anim->mDuration;
-    double ticks_per_sec = anim->mTicksPerSecond;
-    size_t num_unfiltered_channels = anim->mNumChannels;
-
-    if (ticks_per_sec < 0.0001) {
-      ticks_per_sec = 1.0;
+      std::cout << "PRIOR TO PUSH BACK TEMP_MESH" << std::endl;
+      meshes.push_back(temp_mesh);
     }
 
-    std::string anim_name = std::string(anim->mName.C_Str());
-    std::cout << "Assimp animation " << anim_num + 1 << " out of " << num_anims
-              << ". Name: " << anim_name << ". Ticks = " << ticks
-              << ". Ticks per second = " << ticks_per_sec
-              << ". Number of (unfiltered) channels = "
-              << num_unfiltered_channels << std::endl;
+    std::cout << "Total of " << meshes.size() << " meshes in file " << name
+              << "." << std::endl;
 
-    ozz::animation::offline::RawAnimation raw_animation;
-    raw_animation.duration = ticks * ticks_per_sec;
+    //   for (mesh m : meshes) {
+    //     std::cout << "Bones for mesh " << m.name << ":";
+    //     for (std::string s : m.bone_names) {
+    //       std::cout << " " << s;
+    //     }
+    //     std::cout << std::endl;
+    //   }
 
-    // Filter out the anim nodes that aren't bones.
-    // TODO: Find out whether this is necessary or desirable
-    std::set<std::tuple<size_t, aiNodeAnim *>> valid_channels;
-    for (size_t num = 0; num < num_unfiltered_channels; ++num) {
-      aiNodeAnim *anim_node = anim->mChannels[num];
-      std::string anim_node_name = std::string(anim_node->mNodeName.C_Str());
-      auto it = joint_indices.find(anim_node_name);
-      if (it != joint_indices.end()) {
-        size_t anim_node_skeleton_index = it->second;
-        valid_channels.insert(
-            std::make_tuple(anim_node_skeleton_index, anim_node));
-        // std::cout << "Found node " << anim_node_name << " for animation track
-        // "
-        //          << num << "." << std::endl;
-      } else {
-        // std::cout << "Could not find node " << anim_node_name
-        //          << " required to build animation track " << num
-        //          << ". Skipping." << std::endl;
-        continue;
-      }
-    }
+    loader::hierarchy bone_hierarchy;
 
-    raw_animation.tracks.resize(num_joints);
-    for (std::tuple<size_t, aiNodeAnim *> chan : valid_channels) {
-      size_t track_index = std::get<0>(chan);
-      aiNodeAnim *anim_node = std::get<1>(chan);
+    bone_hierarchy.init(scene, scene_bone_names);
 
-      size_t num_translations = anim_node->mNumPositionKeys;
-      size_t num_rotations = anim_node->mNumRotationKeys;
-      size_t num_scales = anim_node->mNumScalingKeys;
+    bone_hierarchy.print_info();
 
-      // std::cout << "Bone " << anim_node->mNodeName.C_Str()
-      //           << ", skeleton index " << track_index << " - Inserting "
-      //           << num_translations << " translations, " << num_rotations
-      //           << " rotations, " << num_scales << " scales." << std::endl;
+    ozz::animation::offline::RawSkeleton raw_skel =
+        bone_hierarchy.make_raw_skeleton();
 
-      for (size_t i = 0; i < num_translations; ++i) {
-        // std::cout << "Inserting translation num " << i << ": ";
-        aiVectorKey k = anim_node->mPositionKeys[i];
-        double t = k.mTime;
-        aiVector3D val = k.mValue;
-        // std::cout << " time = " << t << ", (" << val.x << ", " << val.y << ",
-        // "
-        //          << val.z << ")" << std::endl;
-        const ozz::animation::offline::RawAnimation::TranslationKey trans_key =
-            {static_cast<float>(t),
-             ozz::math::Float3(static_cast<float>(val.x),
-                               static_cast<float>(val.y),
-                               static_cast<float>(val.z))};
-        raw_animation.tracks[track_index].translations.push_back(trans_key);
-      }
-      for (size_t i = 0; i < num_rotations; ++i) {
-        // // std::cout << "Inserting rotation num " << i << ": ";
-        aiQuatKey k = anim_node->mRotationKeys[i];
-        double t = k.mTime;
-        aiQuaternion val = k.mValue;
-        // std::cout << " time = " << t << ", (" << val.x << ", " << val.y << ",
-        // "
-        //          << val.z << ", " << val.w << ")" << std::endl;
-
-        const ozz::animation::offline::RawAnimation::RotationKey rot_key = {
-            static_cast<float>(t),
-            ozz::math::Quaternion(
-                static_cast<float>(val.x), static_cast<float>(val.y),
-                static_cast<float>(val.z), static_cast<float>(val.w))};
-        raw_animation.tracks[track_index].rotations.push_back(rot_key);
-      }
-      for (size_t i = 0; i < num_scales; ++i) {
-        // std::cout << "Inserting scale num " << i << std::endl;
-        aiVectorKey k = anim_node->mScalingKeys[i];
-        double t = k.mTime;
-        aiVector3D val = k.mValue;
-        // std::cout << " time = " << t << ", (" << val.x << ", " << val.y << ",
-        // "
-        //          << val.z << ")" << std::endl;
-        const ozz::animation::offline::RawAnimation::ScaleKey scale_key = {
-            static_cast<float>(t),
-            ozz::math::Float3(static_cast<float>(val.x),
-                              static_cast<float>(val.y),
-                              static_cast<float>(val.z))};
-        raw_animation.tracks[track_index].scales.push_back(scale_key);
-      }
-    }
-    if (!raw_animation.Validate()) {
-      std::cout << "Animation validate failed! :(" << std::endl;
-      return -3;
+    if (!raw_skel.Validate()) {
+      std::cout << "Skeleton validation failed!" << std::endl;
+      return false;
     } else {
-      std::cout << "Animation validate success! :)" << std::endl;
+      std::cout << "Skeleton validation success!" << std::endl;
     }
 
-    std::ostringstream output_raw_anim_filename;
-    if (anim_name.empty()) {
-      output_raw_anim_filename << output_pathname << "/" << "anim-" << anim_num
-                               << "-raw.ozz";
-    } else {
-      output_raw_anim_filename << output_pathname << "/" << anim_name
-                               << "-raw.ozz";
-    }
-    std::cout << "Outputting raw animation to "
-              << output_raw_anim_filename.str() << std::endl;
+    ozz::animation::offline::SkeletonBuilder skel_builder;
+    std::unique_ptr<ozz::animation::Skeleton,
+                    ozz::Deleter<ozz::animation::Skeleton>>
+        runtime_skel = skel_builder(raw_skel);
 
-    ozz::io::File output_raw_anim_file(output_raw_anim_filename.str().c_str(),
+    std::string output_base_pathname = "./output/";
+
+    try {
+      boost::filesystem::create_directory(
+          boost::filesystem::path(output_base_pathname));
+    } catch (std::exception &e) {
+      std::cout << "Could not create base path: " << output_base_pathname;
+      return false;
+    }
+    output_pathname = output_base_pathname + name;
+
+    try {
+      boost::filesystem::create_directory(
+          boost::filesystem::path(output_pathname));
+    }
+
+    catch (std::exception &e) {
+      std::cout << "Could not create path: " << output_pathname;
+      return false;
+    }
+
+    // Most of the time, the user will want to use the runtime skeleton, but at
+    // this point we give option for both.
+    std::ostringstream output_raw_skel_filename;
+    output_raw_skel_filename << output_pathname << "/raw-skeleton.ozz";
+    std::string filename = output_raw_skel_filename.str();
+    std::cout << "Outputting raw skeleton to " << output_raw_skel_filename.str()
+              << std::endl;
+    ozz::io::File output_raw_skel_file(output_raw_skel_filename.str().c_str(),
                                        "wb");
-    ozz::io::OArchive raw_anim_archive(&output_raw_anim_file);
-    raw_anim_archive << raw_animation;
+    ozz::io::OArchive raw_skel_archive(&output_raw_skel_file);
+    raw_skel_archive << raw_skel;
 
-    ozz::animation::offline::AnimationBuilder builder;
-    std::unique_ptr<ozz::animation::Animation,
-                    ozz::Deleter<ozz::animation::Animation>>
-        runtime_animation = builder(raw_animation);
+    std::ostringstream output_runtime_skel_filename;
+    output_runtime_skel_filename << output_pathname << "/runtime-skeleton.ozz";
+    std::cout << "Outputting runtime skeleton to "
+              << output_runtime_skel_filename.str() << std::endl;
+    ozz::io::File output_runtime_skel_file(
+        output_runtime_skel_filename.str().c_str(), "wb");
+    ozz::io::OArchive runtime_skel_archive(&output_runtime_skel_file);
+    runtime_skel_archive << *runtime_skel;
 
-    std::ostringstream output_runtime_anim_filename;
-    output_runtime_anim_filename << output_pathname << "/";
-    if (anim_name.empty()) {
-      output_runtime_anim_filename << anim_num;
-    } else {
-      output_runtime_anim_filename << anim_name;
+    // This bit of code allows the animation to use the skeleton indices from
+    // the ozz skeleton structure.
+    // TODO: Find out if necessary.
+    ozz::span<const char *const> joint_names = runtime_skel->joint_names();
+    size_t num_joints = runtime_skel->num_joints();
+
+    std::vector<std::string> joint_names_str;
+    std::unordered_map<std::string, size_t> joint_indices;
+
+    for (size_t i = 0; i < num_joints; ++i) {
+      std::string s = std::string(joint_names[i]);
+      joint_indices.insert(std::make_pair(s, i));
+      joint_names_str.push_back(s);
     }
 
-    output_runtime_anim_filename << "-runtime-anim.ozz";
-    std::cout << "Outputting raw animation to "
-              << output_runtime_anim_filename.str() << std::endl;
+    // std::cout << "Displaying ozz skeleton joint names and indices" <<
+    // std::endl;
 
-    ozz::io::File output_runtime_anim_file(
-        output_runtime_anim_filename.str().c_str(), "wb");
-    ozz::io::OArchive runtime_anim_archive(&output_runtime_anim_file);
-    runtime_anim_archive << *runtime_animation;
+    //   for (auto it = joint_indices.begin(); it != joint_indices.end(); it++)
+    //   {
+    //     std::cout << "Name = " << it->first << ", index = " << it->second
+    //               << std::endl;
+    //   }
+    // Now, get the bone names from each vertex and insert the matching bone
+    // indices.
+    for (size_t mesh_index = 0; mesh_index < meshes.size(); ++mesh_index) {
+      mesh m = meshes[mesh_index];
+      m.bone_names = joint_names_str;
+      std::cout << std::endl;
+      for (size_t vert_index = 0; vert_index < m.positions.size();
+           ++vert_index) {
+        // mesh_vertex v = m.vertices[vert_index];
+        for (size_t i = 0; i < m.vert_bone_names[vert_index].size(); ++i) {
+          std::string s = m.vert_bone_names[vert_index][i];
+          if (!s.empty()) {
+            auto it = joint_indices.find(s);
+            if (it != joint_indices.end()) {
+              m.bone_indices[vert_index][i] = joint_indices.find(s)->second;
+              // std::cout << "Found index " << v.bone_indices[i]
+              //           << " for bone name " << v.bone_names[i] << std::endl;
+            } else {
+              std::cout << "ERROR! Could not find bone index for " << s
+                        << " in joint indices map!!!" << std::endl;
+              return false;
+            }
+          }
+        }
+        // v.bone_names = {""};
+        // m.vertices[vert_index] = v;
+      }
+      meshes[mesh_index] = m;
+    }
+
+    // Now we create the mesh buffer in capnproto
+    capnp::MallocMessageBuilder message;
+    Model::Builder model_output = message.initRoot<Model>();
+    capnp::List<Mesh>::Builder meshes_output =
+        model_output.initMeshes(meshes.size());
+
+    for (size_t i = 0; i < meshes.size(); ++i) {
+      Mesh::Builder m = meshes_output[i];
+      m.setTranslationX(meshes[i].translation[0]);
+      m.setTranslationY(meshes[i].translation[1]);
+      m.setTranslationZ(meshes[i].translation[2]);
+      m.setScaleX(meshes[i].scale[0]);
+      m.setScaleY(meshes[i].scale[1]);
+      m.setScaleZ(meshes[i].scale[2]);
+      m.setDimensionsX(meshes[i].dimensions[0]);
+      m.setDimensionsY(meshes[i].dimensions[1]);
+      m.setDimensionsZ(meshes[i].dimensions[2]);
+      m.setRotationX(meshes[i].rotation[0]);
+      m.setRotationY(meshes[i].rotation[1]);
+      m.setRotationZ(meshes[i].rotation[2]);
+      m.setRotationW(meshes[i].rotation[3]);
+      m.setName(meshes[i].name);
+
+      capnp::List<Array3f>::Builder positions =
+          m.initPositions(meshes[i].positions.size());
+      for (size_t j = 0; j < meshes[i].positions.size(); ++j) {
+        Array3f::Builder p = positions[j];
+        p.setArray3fX(meshes[i].positions[j][0]);
+        p.setArray3fY(meshes[i].positions[j][1]);
+        p.setArray3fZ(meshes[i].positions[j][2]);
+      }
+
+      // capnp::List<size_t>::Builder indices =
+      m.initIndices(meshes[i].indices.size());
+      for (size_t j = 0; j < meshes[i].indices.size(); ++j) {
+        m.getIndices().set(j, meshes[i].indices[j]);
+      }
+
+      if (has_normals) {
+        capnp::List<Array3f>::Builder normals =
+            m.initNormals(meshes[i].normals.size());
+        for (size_t j = 0; j < meshes[i].normals.size(); ++j) {
+          Array3f::Builder n = normals[j];
+          n.setArray3fX(meshes[i].normals[j][0]);
+          n.setArray3fY(meshes[i].normals[j][1]);
+          n.setArray3fZ(meshes[i].normals[j][2]);
+        }
+      }
+
+      if (has_texcoords) {
+        capnp::List<Array2f>::Builder texcoords =
+            m.initUvs(meshes[i].uvs.size());
+        for (size_t j = 0; j < meshes[i].uvs.size(); ++j) {
+          Array2f::Builder t = texcoords[j];
+          t.setArray2fX(meshes[i].uvs[j][0]);
+          t.setArray2fY(meshes[i].uvs[j][1]);
+        }
+      }
+
+      if (has_bones) {
+        capnp::List<Array4u>::Builder bone_indices =
+            m.initBoneIndices(meshes[i].bone_indices.size());
+        for (size_t j = 0; j < meshes[i].bone_indices.size(); ++j) {
+          Array4u::Builder bi = bone_indices[j];
+          bi.setArray4uX(meshes[i].bone_indices[j][0]);
+          bi.setArray4uY(meshes[i].bone_indices[j][1]);
+          bi.setArray4uZ(meshes[i].bone_indices[j][2]);
+          bi.setArray4uW(meshes[i].bone_indices[j][3]);
+        }
+
+        capnp::List<Array4f>::Builder bone_weights =
+            m.initBoneWeights(meshes[i].bone_weights.size());
+        for (size_t j = 0; j < meshes[i].bone_weights.size(); ++j) {
+          Array4f::Builder bw = bone_weights[j];
+          bw.setArray4fX(meshes[i].bone_weights[j][0]);
+          bw.setArray4fY(meshes[i].bone_weights[j][1]);
+          bw.setArray4fZ(meshes[i].bone_weights[j][2]);
+          bw.setArray4fW(meshes[i].bone_weights[j][3]);
+        }
+
+        capnp::List<capnp::Text>::Builder bone_names =
+            m.initBoneNames(meshes[i].bone_names.size());
+        for (size_t j = 0; j < meshes[i].bone_names.size(); ++j) {
+          m.getBoneNames().set(j, meshes[i].bone_names[j]);
+        }
+      }
+    }
+    std::cout << "ABOUT TO WRITE MESSAGE" << std::endl;
+    kj::VectorOutputStream output_stream;
+    // And write our mesage to the output stream
+    capnp::writePackedMessage(output_stream, message);
+    // auto words = capnp::messageToFlatArray(message);
+    // auto bytes = words.asBytes();
+    const auto array = output_stream.getArray();
+    auto iter = array.begin();
+    std::cout << "Message size: " << array.size() << std::endl;
+    std::vector<char> buffer;
+    while (iter != array.end()) {
+      buffer.push_back(*iter);
+      ++iter;
+    }
+
+    std::ofstream output_file;
+    output_file.open(output_pathname + "/meshes.bin", std::ios::binary);
+    for (unsigned char c : buffer) {
+      output_file.put(c);
+    }
+
+    std::cout << "Buffer size: " << buffer.size() << std::endl;
+
+    output_file.close();
+
+    std::vector<ozz::animation::offline::RawAnimation> raw_animations;
+
+    size_t num_anims = scene->mNumAnimations;
+    for (size_t anim_num = 0; anim_num < num_anims; ++anim_num) {
+      aiAnimation *anim = scene->mAnimations[anim_num];
+      double ticks = anim->mDuration;
+      double ticks_per_sec = anim->mTicksPerSecond;
+      size_t num_unfiltered_channels = anim->mNumChannels;
+
+      if (ticks_per_sec < 0.0001) {
+        ticks_per_sec = 1.0;
+      }
+
+      std::string anim_name = std::string(anim->mName.C_Str());
+      std::cout << "Assimp animation " << anim_num + 1 << " out of "
+                << num_anims << ". Name: " << anim_name << ". Ticks = " << ticks
+                << ". Ticks per second = " << ticks_per_sec
+                << ". Number of (unfiltered) channels = "
+                << num_unfiltered_channels << std::endl;
+
+      ozz::animation::offline::RawAnimation raw_animation;
+      raw_animation.duration = ticks * ticks_per_sec;
+
+      // Filter out the anim nodes that aren't bones.
+      // TODO: Find out whether this is necessary or desirable
+      std::set<std::tuple<size_t, aiNodeAnim *>> valid_channels;
+      for (size_t num = 0; num < num_unfiltered_channels; ++num) {
+        aiNodeAnim *anim_node = anim->mChannels[num];
+        std::string anim_node_name = std::string(anim_node->mNodeName.C_Str());
+        auto it = joint_indices.find(anim_node_name);
+        if (it != joint_indices.end()) {
+          size_t anim_node_skeleton_index = it->second;
+          valid_channels.insert(
+              std::make_tuple(anim_node_skeleton_index, anim_node));
+          // std::cout << "Found node " << anim_node_name << " for animation
+          // track
+          // "
+          //          << num << "." << std::endl;
+        } else {
+          // std::cout << "Could not find node " << anim_node_name
+          //          << " required to build animation track " << num
+          //          << ". Skipping." << std::endl;
+          continue;
+        }
+      }
+
+      raw_animation.tracks.resize(num_joints);
+      for (std::tuple<size_t, aiNodeAnim *> chan : valid_channels) {
+        size_t track_index = std::get<0>(chan);
+        aiNodeAnim *anim_node = std::get<1>(chan);
+
+        size_t num_translations = anim_node->mNumPositionKeys;
+        size_t num_rotations = anim_node->mNumRotationKeys;
+        size_t num_scales = anim_node->mNumScalingKeys;
+
+        // std::cout << "Bone " << anim_node->mNodeName.C_Str()
+        //           << ", skeleton index " << track_index << " - Inserting "
+        //           << num_translations << " translations, " << num_rotations
+        //           << " rotations, " << num_scales << " scales." << std::endl;
+
+        for (size_t i = 0; i < num_translations; ++i) {
+          // std::cout << "Inserting translation num " << i << ": ";
+          aiVectorKey k = anim_node->mPositionKeys[i];
+          double t = k.mTime;
+          aiVector3D val = k.mValue;
+          // std::cout << " time = " << t << ", (" << val.x << ", " << val.y <<
+          // ",
+          // "
+          //          << val.z << ")" << std::endl;
+          const ozz::animation::offline::RawAnimation::TranslationKey
+              trans_key = {static_cast<float>(t),
+                           ozz::math::Float3(static_cast<float>(val.x),
+                                             static_cast<float>(val.y),
+                                             static_cast<float>(val.z))};
+          raw_animation.tracks[track_index].translations.push_back(trans_key);
+        }
+        for (size_t i = 0; i < num_rotations; ++i) {
+          // // std::cout << "Inserting rotation num " << i << ": ";
+          aiQuatKey k = anim_node->mRotationKeys[i];
+          double t = k.mTime;
+          aiQuaternion val = k.mValue;
+          // std::cout << " time = " << t << ", (" << val.x << ", " << val.y <<
+          // ",
+          // "
+          //          << val.z << ", " << val.w << ")" << std::endl;
+
+          const ozz::animation::offline::RawAnimation::RotationKey rot_key = {
+              static_cast<float>(t),
+              ozz::math::Quaternion(
+                  static_cast<float>(val.x), static_cast<float>(val.y),
+                  static_cast<float>(val.z), static_cast<float>(val.w))};
+          raw_animation.tracks[track_index].rotations.push_back(rot_key);
+        }
+        for (size_t i = 0; i < num_scales; ++i) {
+          // std::cout << "Inserting scale num " << i << std::endl;
+          aiVectorKey k = anim_node->mScalingKeys[i];
+          double t = k.mTime;
+          aiVector3D val = k.mValue;
+          // std::cout << " time = " << t << ", (" << val.x << ", " << val.y <<
+          // ",
+          // "
+          //          << val.z << ")" << std::endl;
+          const ozz::animation::offline::RawAnimation::ScaleKey scale_key = {
+              static_cast<float>(t),
+              ozz::math::Float3(static_cast<float>(val.x),
+                                static_cast<float>(val.y),
+                                static_cast<float>(val.z))};
+          raw_animation.tracks[track_index].scales.push_back(scale_key);
+        }
+      }
+      if (!raw_animation.Validate()) {
+        std::cout << "Animation validate failed! :(" << std::endl;
+        return -3;
+      } else {
+        std::cout << "Animation validate success! :)" << std::endl;
+      }
+
+      std::ostringstream output_raw_anim_filename;
+      if (anim_name.empty()) {
+        output_raw_anim_filename << output_pathname << "/" << "anim-"
+                                 << anim_num << "-raw.ozz";
+      } else {
+        output_raw_anim_filename << output_pathname << "/" << anim_name
+                                 << "-raw.ozz";
+      }
+      std::cout << "Outputting raw animation to "
+                << output_raw_anim_filename.str() << std::endl;
+
+      ozz::io::File output_raw_anim_file(output_raw_anim_filename.str().c_str(),
+                                         "wb");
+      ozz::io::OArchive raw_anim_archive(&output_raw_anim_file);
+      raw_anim_archive << raw_animation;
+
+      ozz::animation::offline::AnimationBuilder builder;
+      std::unique_ptr<ozz::animation::Animation,
+                      ozz::Deleter<ozz::animation::Animation>>
+          runtime_animation = builder(raw_animation);
+
+      std::ostringstream output_runtime_anim_filename;
+      output_runtime_anim_filename << output_pathname << "/";
+      if (anim_name.empty()) {
+        output_runtime_anim_filename << anim_num;
+      } else {
+        output_runtime_anim_filename << anim_name;
+      }
+
+      output_runtime_anim_filename << "-runtime-anim.ozz";
+      std::cout << "Outputting raw animation to "
+                << output_runtime_anim_filename.str() << std::endl;
+
+      ozz::io::File output_runtime_anim_file(
+          output_runtime_anim_filename.str().c_str(), "wb");
+      ozz::io::OArchive runtime_anim_archive(&output_runtime_anim_file);
+      runtime_anim_archive << *runtime_animation;
+    }
   }
-
   return true;
 }

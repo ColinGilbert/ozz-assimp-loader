@@ -1,5 +1,30 @@
 @0xacf01638e9ed1b9c;
 
+struct Array4u {
+	array4uX @0 :UInt64;
+	array4uY @1 :UInt64;
+	array4uZ @2 :UInt64;
+	array4uW @3 :UInt64;
+}
+
+struct Array4f {
+	array4fX @0 :Float32;
+	array4fY @1 :Float32;
+	array4fZ @2 :Float32;
+	array4fW @3 :Float32;
+}
+
+struct Array3f {
+	array3fX @0 :Float32;
+	array3fY @1 :Float32;
+	array3fZ @2 :Float32;
+}
+
+struct Array2f {
+	array2fX @0 :Float32;
+	array2fY @1 :Float32;
+}
+
 struct Mesh {
     translationX @0 :Float32;
     translationY @1 :Float32;
@@ -15,28 +40,13 @@ struct Mesh {
 	rotationZ @11 :Float32;
 	rotationW @12 :Float32;
 	name @13 :Text;
-	vertices @14 :List(MeshVertex);
-	indices @15:List(UInt64);
-	boneNames @16 :List(Text);
-}
-
-struct MeshVertex {
-	positionX @0 :Float32;
-    positionY @1 :Float32;
-	positionZ @2 :Float32;
-    normalX @3 :Float32;
-	normalY @4 :Float32;
-	normalZ @5 :Float32;
-    uvX @6 :Float32;
-    uvY @7 :Float32;
-    boneIndexX @8 :UInt32;
-    boneIndexY @9 :UInt32;
-	boneIndexZ @10 :UInt32;
-    boneIndexW @11 :UInt32;
-    boneWeightX @12 :Float32;
-    boneWeightY @13 :Float32;
-    boneWeightZ @14 :Float32;
-    boneWeightW @15 :Float32;
+	indices @14:List(UInt64);
+	positions @15 :List(Array3f);
+	normals @16: List(Array3f);
+	uvs @17: List(Array2f);
+	boneIndices @18: List(Array4u);
+	boneWeights @19: List(Array4f);
+	boneNames @20 :List(Text);
 }
 
 struct Model {
