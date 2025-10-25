@@ -558,12 +558,12 @@ bool loader::load(const aiScene *scene, const std::string &name) {
   }
 
   std::ofstream output_file;
-  output_file.open("output" + output_pathname + "/model.bin", std::ios::binary);
+  output_file.open(output_pathname + "/model.bin", std::ios::binary);
   for (unsigned char c : buffer) {
     output_file.put(c);
   }
 
-  std::cout << "Writing model file to output/" << output_pathname + "/model.bin"
+  std::cout << "Writing model file to " << output_pathname + "/model.bin"
             << std::endl;
   // std::cout << "Buffer size: " << buffer.size() << std::endl;
 
