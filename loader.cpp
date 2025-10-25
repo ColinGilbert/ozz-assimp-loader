@@ -199,7 +199,12 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     bool has_texcoords = mesh_data->HasTextureCoords(0);
 
     temp_mesh.positions.resize(num_verts);
-
+    if (has_normals) {
+      temp_mesh.normals.resize(num_verts);
+    }
+    if (has_texcoords) {
+      temp_mesh.uvs.resize(num_verts);
+    }
     std::cout << "Mesh " << temp_mesh.name << " (" << mesh_num << ") has "
               << num_verts << " verts and " << num_bones << " bones. Normals? "
               << has_normals << std::endl;
@@ -222,14 +227,12 @@ bool loader::load(const aiScene *scene, const std::string &name) {
       max_extents[2] = std::max(max_extents[2], pt[2]);
 
       if (has_normals) {
-        temp_mesh.normals.resize(num_verts);
         aiVector3D normal = mesh_data->mNormals[n];
         temp_mesh.normals[n][0] = normal[0];
         temp_mesh.normals[n][1] = normal[1];
         temp_mesh.normals[n][2] = normal[2];
       }
       if (has_texcoords) {
-        temp_mesh.uvs.resize(num_verts);
         aiVector3D uv = mesh_data->mTextureCoords[0][n];
         temp_mesh.uvs[n][0] = uv.x;
         temp_mesh.uvs[n][1] = uv.y;
@@ -243,8 +246,8 @@ bool loader::load(const aiScene *scene, const std::string &name) {
 
     temp_mesh.dimensions = temp_dims;
 
-    for (size_t n = 0; n < num_faces; ++n) {
-      aiFace face = mesh_data->mFaces[n];
+    for (size_t face_id = 0; face_id < num_faces; ++face_id) {
+      aiFace face = mesh_data->mFaces[face_id];
       if (face.mNumIndices == 3) {
         temp_mesh.indices.push_back(face.mIndices[0]);
         temp_mesh.indices.push_back(face.mIndices[1]);
@@ -431,6 +434,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
           AI_SUCCESS) {
         material.specular_texture_path = std::string(texturePath.C_Str());
       }
+      material.name = std::string(mat->GetName().C_Str());
       materials.push_back(material);
 
       // std::cout << texturePath.C_Str() << std::endl;
@@ -476,6 +480,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     // capnp::List<size_t>::Builder indices =
     m.initIndices(meshes[i].indices.size());
     for (size_t j = 0; j < meshes[i].indices.size(); ++j) {
+
       m.getIndices().set(j, meshes[i].indices[j]);
     }
 
@@ -722,5 +727,6 @@ bool loader::load(const aiScene *scene, const std::string &name) {
       runtime_anim_archive << *runtime_animation;
     }
   }
+
   return true;
 }

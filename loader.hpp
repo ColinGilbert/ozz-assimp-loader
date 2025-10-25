@@ -28,22 +28,23 @@
 
 class loader {
 public:
-//   struct mesh_vertex {
-//     mesh_vertex()
-//         : position({0.0f, 0.0f, 0.0f}), normal({0.0f, 0.0f, 0.0f}),
-//           uv({0.0f, 0.0f}), bone_names({"", "", "", ""}),
-//           bone_indices({0, 0, 0, 0}), bone_weights({0.0f, 0.0f, 0.0f, 0.0f}) {}
-//     std::array<float, 3> position, normal;
-//     std::array<float, 2> uv;
-//     std::array<std::string, 4> bone_names;
-//     std::array<size_t, 4> bone_indices;
-//     std::array<float, 4> bone_weights;
-//   };
+  //   struct mesh_vertex {
+  //     mesh_vertex()
+  //         : position({0.0f, 0.0f, 0.0f}), normal({0.0f, 0.0f, 0.0f}),
+  //           uv({0.0f, 0.0f}), bone_names({"", "", "", ""}),
+  //           bone_indices({0, 0, 0, 0}), bone_weights({0.0f, 0.0f, 0.0f,
+  //           0.0f}) {}
+  //     std::array<float, 3> position, normal;
+  //     std::array<float, 2> uv;
+  //     std::array<std::string, 4> bone_names;
+  //     std::array<size_t, 4> bone_indices;
+  //     std::array<float, 4> bone_weights;
+  //   };
 
   struct mesh {
+    std::string name;
     std::array<float, 3> translation, scale, dimensions;
     std::array<float, 4> rotation;
-    std::string name;
     std::vector<std::array<float, 3>> positions, normals;
     std::vector<std::array<float, 2>> uvs;
     std::vector<std::array<std::string, 4>>
@@ -55,12 +56,13 @@ public:
     unsigned int material_index;
   };
 
-  enum texture_type { NONE = 0, DIFFUSE = 1, NORMAL = 2, SPECULAR = 3};
-  
+  enum texture_type { NONE = 0, DIFFUSE = 1, NORMAL = 2, SPECULAR = 3 };
+
   struct material {
+    std::string name;
     std::string diffuse_texture_path;
-	std::string normals_texture_path;
-	std::string specular_texture_path;
+    std::string normals_texture_path;
+    std::string specular_texture_path;
     texture_type tex_type;
   };
 

@@ -54,6 +54,7 @@ struct Material {
 	diffuseTexturePath @0: Text;
 	normalsTexturePath @1: Text;
 	specularTexturePath @2: Text;
+	name @3: Text;
 
 }
 

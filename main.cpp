@@ -8,7 +8,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(argv[1],aiProcess_RemoveRedundantMaterials | aiProcess_FindInvalidData | aiProcess_ValidateDataStructure |aiProcess_JoinIdenticalVertices | aiProcess_FindDegenerates | aiProcess_Triangulate);//, aiProcess_CalcTangentSacpe | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
+	const aiScene* scene = importer.ReadFile(argv[1],aiProcess_RemoveRedundantMaterials | aiProcess_FindInvalidData | aiProcess_ValidateDataStructure |aiProcess_JoinIdenticalVertices | aiProcess_FindDegenerates | aiProcess_Triangulate);//| aiProcess_SortByPType);
 	loader _loader;
 
 	bool success = _loader.load(scene, argv[1]);
