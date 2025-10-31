@@ -1,10 +1,10 @@
 @0xacf01638e9ed1b9c;
 
 struct Array4u {
-	array4uX @0 :UInt64;
-	array4uY @1 :UInt64;
-	array4uZ @2 :UInt64;
-	array4uW @3 :UInt64;
+	array4uX @0 :UInt32;
+	array4uY @1 :UInt32;
+	array4uZ @2 :UInt32;
+	array4uW @3 :UInt32;
 }
 
 struct Array4f {

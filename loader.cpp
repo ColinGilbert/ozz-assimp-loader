@@ -12,7 +12,6 @@
 #include <kj/io.h>
 
 #include "model3d_schema.capnp.h"
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -166,7 +165,7 @@ lemon::ListDigraph::Node loader::hierarchy::add(aiNode *assimp_node) {
 }
 
 void loader::hierarchy::recursive_print(lemon::ListDigraph::Node n) {
-  std::cout << "Node name = " << _name[n] << std::endl;
+  // std::cout << "Node name = " << _name[n] << std::endl;
 
   for (lemon::ListDigraph::OutArcIt it(_graph, n); it != lemon::INVALID; ++it) {
     lemon::ListDigraph::Arc arc(it);
@@ -254,14 +253,13 @@ bool loader::load(const aiScene *scene, const std::string &name) {
         temp_mesh.indices.push_back(face.mIndices[2]);
       }
       // else {
-      //   std::cout<< "Found faces with " << face.mNumIndices << " indicce" <<
+      //   std::cout<< "Found faces with " << face.mNumIndices << " indices" <<
       //   std::endl;
       // }
     }
 
     if (has_bones) {
       temp_mesh.vert_bone_names.resize(num_verts);
-      // temp_mesh.bone_names.reserve(num_bones);
       temp_mesh.bone_indices.resize(num_verts);
       temp_mesh.bone_weights.resize(num_verts);
 
@@ -308,10 +306,10 @@ bool loader::load(const aiScene *scene, const std::string &name) {
         bone_hierarchy.make_raw_skeleton();
 
     if (!raw_skel.Validate()) {
-      std::cout << "Skeleton validation failed!" << std::endl;
+      std::cout << "Raw skeleton validation failed!" << std::endl;
       return false;
     } else {
-      std::cout << "Skeleton validation success!" << std::endl;
+      std::cout << "Raw skeleton validation success!" << std::endl;
     }
 
     ozz::animation::offline::SkeletonBuilder skel_builder;
@@ -362,8 +360,8 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     runtime_skel_archive << *runtime_skel;
 
     // This bit of code allows the animation to use the skeleton indices from
-    // the ozz skeleton structure.
-    // TODO: Find out if necessary.
+    // the ozz runtime skeleton structure.
+    // TODO: Find out if its necessary.
     ozz::span<const char *const> joint_names = runtime_skel->joint_names();
     num_joints = runtime_skel->num_joints();
 
@@ -375,31 +373,32 @@ bool loader::load(const aiScene *scene, const std::string &name) {
       joint_names_str.push_back(s);
     }
 
-    // std::cout << "Displaying ozz skeleton joint names and indices" <<
-    // std::endl;
+    std::cout << "Displaying skeleton joint names and indices" <<
+    std::endl;
 
-    //   for (auto it = joint_indices.begin(); it != joint_indices.end(); it++)
-    //   {
-    //     std::cout << "Name = " << it->first << ", index = " << it->second
-    //               << std::endl;
-    //   }
+      for (auto it = joint_indices.begin(); it != joint_indices.end(); it++)
+      {
+        std::cout << "Name = " << it->first << ", index = " << it->second
+                  << std::endl;
+      }
     // Now, get the bone names from each vertex and insert the matching bone
     // indices.
     for (size_t mesh_index = 0; mesh_index < meshes.size(); ++mesh_index) {
-      loader::mesh m = meshes[mesh_index];
-      m.bone_names = joint_names_str;
+      //loader::mesh m = meshes[mesh_index];
+      meshes[mesh_index].bone_names = joint_names_str;
       std::cout << std::endl;
-      for (size_t vert_index = 0; vert_index < m.positions.size();
+      for (size_t vert_index = 0; vert_index < meshes[mesh_index].positions.size();
            ++vert_index) {
-        // mesh_vertex v = m.vertices[vert_index];
-        if (m.vert_bone_names.size() == m.bone_indices.size() ==
-            m.positions.size()) {
-          for (size_t i = 0; i < m.vert_bone_names[vert_index].size(); ++i) {
-            std::string s = m.vert_bone_names[vert_index][i];
+        // if ((m.vert_bone_names.size() == m.bone_indices.size()) ==
+        //     m.positions.size()) {
+          for (size_t i = 0; i < meshes[mesh_index].vert_bone_names[vert_index].size(); ++i) {
+            std::string s = meshes[mesh_index].vert_bone_names[vert_index][i];
+            //std::cout << s << std::endl;
             if (!s.empty()) {
               auto it = joint_indices.find(s);
               if (it != joint_indices.end()) {
-                m.bone_indices[vert_index][i] = joint_indices.find(s)->second;
+                meshes[mesh_index].bone_indices[vert_index][i] = joint_indices.find(s)->second;
+                //std::cout << joint_indices.find(s)->second << " ";
                 // std::cout << "Found index " << v.bone_indices[i]
                 //           << " for bone name " << v.bone_names[i] <<
                 //           std::endl;
@@ -409,12 +408,13 @@ bool loader::load(const aiScene *scene, const std::string &name) {
                 return false;
               }
             }
-          }
+          // }
         }
       }
-      meshes[mesh_index] = m;
+      //meshes[mesh_index] = m;
     }
   }
+
   // Read in materials
   const bool has_materials = scene->HasMaterials();
   if (has_materials) {
@@ -509,6 +509,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
         m.initBoneIndices(meshes[i].bone_indices.size());
     for (size_t j = 0; j < meshes[i].bone_indices.size(); ++j) {
       Array4u::Builder bi = bone_indices[j];
+      std::cout << meshes[i].bone_indices[j][0] << " " << meshes[i].bone_indices[j][1] << " " << meshes[i].bone_indices[j][2] << " " << meshes[i].bone_indices[j][3] << std::endl;
       bi.setArray4uX(meshes[i].bone_indices[j][0]);
       bi.setArray4uY(meshes[i].bone_indices[j][1]);
       bi.setArray4uZ(meshes[i].bone_indices[j][2]);
@@ -530,7 +531,6 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     for (size_t j = 0; j < meshes[i].bone_names.size(); ++j) {
       m.getBoneNames().set(j, meshes[i].bone_names[j]);
     }
-    // }
   }
 
   // Create the material buffer in capnproto
@@ -610,9 +610,9 @@ bool loader::load(const aiScene *scene, const std::string &name) {
           // "
           //          << num << "." << std::endl;
         } else {
-          // std::cout << "Could not find node " << anim_node_name
-          //          << " required to build animation track " << num
-          //          << ". Skipping." << std::endl;
+         std::cout << "Could not find node " << anim_node_name
+                    << " required to build animation track " << num
+                    << ". Skipping." << std::endl;
           continue;
         }
       }
@@ -718,7 +718,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
       }
 
       output_runtime_anim_filename << "-runtime-anim.ozz";
-      std::cout << "Outputting raw animation to "
+      std::cout << "Outputting runtime animation to "
                 << output_runtime_anim_filename.str() << std::endl;
 
       ozz::io::File output_runtime_anim_file(

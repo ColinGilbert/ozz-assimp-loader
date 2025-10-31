@@ -65,26 +65,26 @@ pub mod array4u {
       self.reader.total_size()
     }
     #[inline]
-    pub fn get_array4u_x(self) -> u64 {
-      self.reader.get_data_field::<u64>(0)
+    pub fn get_array4u_x(self) -> u32 {
+      self.reader.get_data_field::<u32>(0)
     }
     #[inline]
-    pub fn get_array4u_y(self) -> u64 {
-      self.reader.get_data_field::<u64>(1)
+    pub fn get_array4u_y(self) -> u32 {
+      self.reader.get_data_field::<u32>(1)
     }
     #[inline]
-    pub fn get_array4u_z(self) -> u64 {
-      self.reader.get_data_field::<u64>(2)
+    pub fn get_array4u_z(self) -> u32 {
+      self.reader.get_data_field::<u32>(2)
     }
     #[inline]
-    pub fn get_array4u_w(self) -> u64 {
-      self.reader.get_data_field::<u64>(3)
+    pub fn get_array4u_w(self) -> u32 {
+      self.reader.get_data_field::<u32>(3)
     }
   }
 
   pub struct Builder<'a> { builder: ::capnp::private::layout::StructBuilder<'a> }
   impl <> ::capnp::traits::HasStructSize for Builder<'_,>  {
-    const STRUCT_SIZE: ::capnp::private::layout::StructSize = ::capnp::private::layout::StructSize { data: 4, pointers: 0 };
+    const STRUCT_SIZE: ::capnp::private::layout::StructSize = ::capnp::private::layout::StructSize { data: 2, pointers: 0 };
   }
   impl <> ::capnp::traits::HasTypeId for Builder<'_,>  {
     const TYPE_ID: u64 = _private::TYPE_ID;
@@ -135,36 +135,36 @@ pub mod array4u {
       self.builder.as_reader().total_size()
     }
     #[inline]
-    pub fn get_array4u_x(self) -> u64 {
-      self.builder.get_data_field::<u64>(0)
+    pub fn get_array4u_x(self) -> u32 {
+      self.builder.get_data_field::<u32>(0)
     }
     #[inline]
-    pub fn set_array4u_x(&mut self, value: u64)  {
-      self.builder.set_data_field::<u64>(0, value);
+    pub fn set_array4u_x(&mut self, value: u32)  {
+      self.builder.set_data_field::<u32>(0, value);
     }
     #[inline]
-    pub fn get_array4u_y(self) -> u64 {
-      self.builder.get_data_field::<u64>(1)
+    pub fn get_array4u_y(self) -> u32 {
+      self.builder.get_data_field::<u32>(1)
     }
     #[inline]
-    pub fn set_array4u_y(&mut self, value: u64)  {
-      self.builder.set_data_field::<u64>(1, value);
+    pub fn set_array4u_y(&mut self, value: u32)  {
+      self.builder.set_data_field::<u32>(1, value);
     }
     #[inline]
-    pub fn get_array4u_z(self) -> u64 {
-      self.builder.get_data_field::<u64>(2)
+    pub fn get_array4u_z(self) -> u32 {
+      self.builder.get_data_field::<u32>(2)
     }
     #[inline]
-    pub fn set_array4u_z(&mut self, value: u64)  {
-      self.builder.set_data_field::<u64>(2, value);
+    pub fn set_array4u_z(&mut self, value: u32)  {
+      self.builder.set_data_field::<u32>(2, value);
     }
     #[inline]
-    pub fn get_array4u_w(self) -> u64 {
-      self.builder.get_data_field::<u64>(3)
+    pub fn get_array4u_w(self) -> u32 {
+      self.builder.get_data_field::<u32>(3)
     }
     #[inline]
-    pub fn set_array4u_w(&mut self, value: u64)  {
-      self.builder.set_data_field::<u64>(3, value);
+    pub fn set_array4u_w(&mut self, value: u32)  {
+      self.builder.set_data_field::<u32>(3, value);
     }
   }
 
@@ -180,7 +180,7 @@ pub mod array4u {
     pub static ENCODED_NODE: [::capnp::Word; 83] = [
       ::capnp::word(0, 0, 0, 0, 6, 0, 6, 0),
       ::capnp::word(6, 117, 8, 70, 187, 106, 179, 142),
-      ::capnp::word(21, 0, 0, 0, 1, 0, 4, 0),
+      ::capnp::word(21, 0, 0, 0, 1, 0, 2, 0),
       ::capnp::word(156, 27, 237, 233, 56, 22, 240, 172),
       ::capnp::word(0, 0, 7, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
@@ -227,47 +227,47 @@ pub mod array4u {
       ::capnp::word(132, 0, 0, 0, 2, 0, 1, 0),
       ::capnp::word(97, 114, 114, 97, 121, 52, 117, 88),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(9, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(8, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(9, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(8, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(97, 114, 114, 97, 121, 52, 117, 89),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(9, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(8, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(9, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(8, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(97, 114, 114, 97, 121, 52, 117, 90),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(9, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(8, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(9, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(8, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(97, 114, 114, 97, 121, 52, 117, 87),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(9, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(8, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
-      ::capnp::word(9, 0, 0, 0, 0, 0, 0, 0),
+      ::capnp::word(8, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
     ];
     pub fn get_field_types(index: u16) -> ::capnp::introspect::Type {
       match index {
-        0 => <u64 as ::capnp::introspect::Introspect>::introspect(),
-        1 => <u64 as ::capnp::introspect::Introspect>::introspect(),
-        2 => <u64 as ::capnp::introspect::Introspect>::introspect(),
-        3 => <u64 as ::capnp::introspect::Introspect>::introspect(),
+        0 => <u32 as ::capnp::introspect::Introspect>::introspect(),
+        1 => <u32 as ::capnp::introspect::Introspect>::introspect(),
+        2 => <u32 as ::capnp::introspect::Introspect>::introspect(),
+        3 => <u32 as ::capnp::introspect::Introspect>::introspect(),
         _ => ::capnp::introspect::panic_invalid_field_index(index),
       }
     }

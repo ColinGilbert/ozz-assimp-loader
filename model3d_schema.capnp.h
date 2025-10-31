@@ -38,7 +38,7 @@ struct Array4u {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(8eb36abb46087506, 4, 0)
+    CAPNP_DECLARE_STRUCT_HEADER(8eb36abb46087506, 2, 0)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -154,13 +154,13 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline  ::uint64_t getArray4uX() const;
+  inline  ::uint32_t getArray4uX() const;
 
-  inline  ::uint64_t getArray4uY() const;
+  inline  ::uint32_t getArray4uY() const;
 
-  inline  ::uint64_t getArray4uZ() const;
+  inline  ::uint32_t getArray4uZ() const;
 
-  inline  ::uint64_t getArray4uW() const;
+  inline  ::uint32_t getArray4uW() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -190,17 +190,17 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  inline  ::uint64_t getArray4uX();
-  inline void setArray4uX( ::uint64_t value);
+  inline  ::uint32_t getArray4uX();
+  inline void setArray4uX( ::uint32_t value);
 
-  inline  ::uint64_t getArray4uY();
-  inline void setArray4uY( ::uint64_t value);
+  inline  ::uint32_t getArray4uY();
+  inline void setArray4uY( ::uint32_t value);
 
-  inline  ::uint64_t getArray4uZ();
-  inline void setArray4uZ( ::uint64_t value);
+  inline  ::uint32_t getArray4uZ();
+  inline void setArray4uZ( ::uint32_t value);
 
-  inline  ::uint64_t getArray4uW();
-  inline void setArray4uW( ::uint64_t value);
+  inline  ::uint32_t getArray4uW();
+  inline void setArray4uW( ::uint32_t value);
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -913,59 +913,59 @@ private:
 
 // =======================================================================================
 
-inline  ::uint64_t Array4u::Reader::getArray4uX() const {
-  return _reader.getDataField< ::uint64_t>(
+inline  ::uint32_t Array4u::Reader::getArray4uX() const {
+  return _reader.getDataField< ::uint32_t>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS);
 }
 
-inline  ::uint64_t Array4u::Builder::getArray4uX() {
-  return _builder.getDataField< ::uint64_t>(
+inline  ::uint32_t Array4u::Builder::getArray4uX() {
+  return _builder.getDataField< ::uint32_t>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS);
 }
-inline void Array4u::Builder::setArray4uX( ::uint64_t value) {
-  _builder.setDataField< ::uint64_t>(
+inline void Array4u::Builder::setArray4uX( ::uint32_t value) {
+  _builder.setDataField< ::uint32_t>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
 }
 
-inline  ::uint64_t Array4u::Reader::getArray4uY() const {
-  return _reader.getDataField< ::uint64_t>(
+inline  ::uint32_t Array4u::Reader::getArray4uY() const {
+  return _reader.getDataField< ::uint32_t>(
       ::capnp::bounded<1>() * ::capnp::ELEMENTS);
 }
 
-inline  ::uint64_t Array4u::Builder::getArray4uY() {
-  return _builder.getDataField< ::uint64_t>(
+inline  ::uint32_t Array4u::Builder::getArray4uY() {
+  return _builder.getDataField< ::uint32_t>(
       ::capnp::bounded<1>() * ::capnp::ELEMENTS);
 }
-inline void Array4u::Builder::setArray4uY( ::uint64_t value) {
-  _builder.setDataField< ::uint64_t>(
+inline void Array4u::Builder::setArray4uY( ::uint32_t value) {
+  _builder.setDataField< ::uint32_t>(
       ::capnp::bounded<1>() * ::capnp::ELEMENTS, value);
 }
 
-inline  ::uint64_t Array4u::Reader::getArray4uZ() const {
-  return _reader.getDataField< ::uint64_t>(
+inline  ::uint32_t Array4u::Reader::getArray4uZ() const {
+  return _reader.getDataField< ::uint32_t>(
       ::capnp::bounded<2>() * ::capnp::ELEMENTS);
 }
 
-inline  ::uint64_t Array4u::Builder::getArray4uZ() {
-  return _builder.getDataField< ::uint64_t>(
+inline  ::uint32_t Array4u::Builder::getArray4uZ() {
+  return _builder.getDataField< ::uint32_t>(
       ::capnp::bounded<2>() * ::capnp::ELEMENTS);
 }
-inline void Array4u::Builder::setArray4uZ( ::uint64_t value) {
-  _builder.setDataField< ::uint64_t>(
+inline void Array4u::Builder::setArray4uZ( ::uint32_t value) {
+  _builder.setDataField< ::uint32_t>(
       ::capnp::bounded<2>() * ::capnp::ELEMENTS, value);
 }
 
-inline  ::uint64_t Array4u::Reader::getArray4uW() const {
-  return _reader.getDataField< ::uint64_t>(
+inline  ::uint32_t Array4u::Reader::getArray4uW() const {
+  return _reader.getDataField< ::uint32_t>(
       ::capnp::bounded<3>() * ::capnp::ELEMENTS);
 }
 
-inline  ::uint64_t Array4u::Builder::getArray4uW() {
-  return _builder.getDataField< ::uint64_t>(
+inline  ::uint32_t Array4u::Builder::getArray4uW() {
+  return _builder.getDataField< ::uint32_t>(
       ::capnp::bounded<3>() * ::capnp::ELEMENTS);
 }
-inline void Array4u::Builder::setArray4uW( ::uint64_t value) {
-  _builder.setDataField< ::uint64_t>(
+inline void Array4u::Builder::setArray4uW( ::uint32_t value) {
+  _builder.setDataField< ::uint32_t>(
       ::capnp::bounded<3>() * ::capnp::ELEMENTS, value);
 }
 
