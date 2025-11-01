@@ -6,13 +6,6 @@
 #include <ozz/animation/runtime/animation.h>
 #include <ozz/animation/runtime/skeleton.h>
 
-#include <capnp/message.h>
-#include <capnp/serialize-packed.h>
-#include <kj/array.h>
-#include <kj/io.h>
-
-#include "model3d_schema.capnp.h"
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -188,7 +181,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
 
   for (size_t mesh_num = 0; mesh_num < scene->mNumMeshes; mesh_num++) {
     const aiMesh *mesh_data = scene->mMeshes[mesh_num];
-    loader::mesh temp_mesh;
+    loader::SerializedMesh temp_mesh;
     temp_mesh.name = std::string(mesh_data->mName.C_Str());
     std::cout << "Attempting to obtain data for mesh " << std::endl;
     size_t num_verts = mesh_data->mNumVertices;
@@ -386,7 +379,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     // Now, get the bone names from each vertex and insert the matching bone
     // indices.
     for (size_t mesh_index = 0; mesh_index < meshes.size(); ++mesh_index) {
-      loader::mesh m = meshes[mesh_index];
+      loader::SerializedMesh m = meshes[mesh_index];
       m.bone_names = joint_names_str;
       std::cout << std::endl;
       for (size_t vert_index = 0; vert_index < m.positions.size();
@@ -419,7 +412,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
   const bool has_materials = scene->HasMaterials();
   if (has_materials) {
     for (size_t i = 0; i < scene->mNumMaterials; ++i) {
-      loader::material material;
+      loader::SerializedMaterial material;
       const auto mat = scene->mMaterials[i];
       aiString texturePath;
       if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) ==
@@ -441,7 +434,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     }
   }
 
-  model temp_model;
+  loader::SerializedModel temp_model;
   for (auto m : meshes) {
     temp_model.meshes.push_back(m);
   }

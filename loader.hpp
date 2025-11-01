@@ -35,7 +35,7 @@ public:
   //     std::array<float, 4> bone_weights;
   //   };
 
-  struct mesh {
+  struct SerializedMesh {
     std::string name;
     std::array<float, 3> translation, scale, dimensions;
     std::array<float, 4> rotation;
@@ -57,7 +57,7 @@ public:
 
   // MSGPACK_ADD_ENUM(loader::texture_type);
 
-  struct material {
+  struct SerializedMaterial {
     std::string name;
     std::string diffuse_texture_path;
     std::string normals_texture_path;
@@ -67,9 +67,9 @@ public:
   };
 
 
-  struct model {
-    std::vector<mesh> meshes;
-    std::vector<material> materials;
+  struct SerializedModel {
+    std::vector<SerializedMesh> meshes;
+    std::vector<SerializedMaterial> materials;
     MSGPACK_DEFINE(meshes, materials);
   };
 
@@ -116,7 +116,7 @@ public:
   std::string get_output_path() const { return output_pathname; }
 
 protected:
-  std::vector<loader::mesh> meshes;
-  std::vector<loader::material> materials;
+  std::vector<loader::SerializedMesh> meshes;
+  std::vector<loader::SerializedMaterial> materials;
   std::string output_pathname;
 };
