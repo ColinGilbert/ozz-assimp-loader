@@ -392,8 +392,8 @@ bool loader::load(const aiScene *scene, const std::string &name) {
       for (size_t vert_index = 0; vert_index < m.positions.size();
            ++vert_index) {
         // mesh_vertex v = m.vertices[vert_index];
-        if (m.vert_bone_names.size() == m.bone_indices.size() ==
-            m.positions.size()) {
+        //if (m.vert_bone_names.size() == m.bone_indices.size() ==
+        //    m.positions.size()) {
           for (size_t i = 0; i < m.vert_bone_names[vert_index].size(); ++i) {
             std::string s = m.vert_bone_names[vert_index][i];
             if (!s.empty()) {
@@ -409,7 +409,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
                 return false;
               }
             }
-          }
+         // }
         }
       }
       meshes[mesh_index] = m;
@@ -441,126 +441,22 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     }
   }
 
-  // CapnProto builders
-  capnp::MallocMessageBuilder message;
-  Model::Builder model_output = message.initRoot<Model>();
-  capnp::List<Mesh>::Builder meshes_output =
-      model_output.initMeshes(meshes.size());
-  capnp::List<Material>::Builder materials_output =
-      model_output.initMaterials(materials.size());
-
-  // Create the mesh in capnproto
-  for (size_t i = 0; i < meshes.size(); ++i) {
-    Mesh::Builder m = meshes_output[i];
-    m.setTranslationX(meshes[i].translation[0]);
-    m.setTranslationY(meshes[i].translation[1]);
-    m.setTranslationZ(meshes[i].translation[2]);
-    m.setScaleX(meshes[i].scale[0]);
-    m.setScaleY(meshes[i].scale[1]);
-    m.setScaleZ(meshes[i].scale[2]);
-    m.setDimensionsX(meshes[i].dimensions[0]);
-    m.setDimensionsY(meshes[i].dimensions[1]);
-    m.setDimensionsZ(meshes[i].dimensions[2]);
-    m.setRotationX(meshes[i].rotation[0]);
-    m.setRotationY(meshes[i].rotation[1]);
-    m.setRotationZ(meshes[i].rotation[2]);
-    m.setRotationW(meshes[i].rotation[3]);
-    m.setName(meshes[i].name);
-    m.setMaterialIndex(meshes[i].material_index);
-
-    capnp::List<Array3f>::Builder positions =
-        m.initPositions(meshes[i].positions.size());
-    for (size_t j = 0; j < meshes[i].positions.size(); ++j) {
-      Array3f::Builder p = positions[j];
-      p.setArray3fX(meshes[i].positions[j][0]);
-      p.setArray3fY(meshes[i].positions[j][1]);
-      p.setArray3fZ(meshes[i].positions[j][2]);
-    }
-
-    // capnp::List<size_t>::Builder indices =
-    m.initIndices(meshes[i].indices.size());
-    for (size_t j = 0; j < meshes[i].indices.size(); ++j) {
-
-      m.getIndices().set(j, meshes[i].indices[j]);
-    }
-
-    // if (has_normals) {
-    capnp::List<Array3f>::Builder normals =
-        m.initNormals(meshes[i].normals.size());
-    for (size_t j = 0; j < meshes[i].normals.size(); ++j) {
-      Array3f::Builder n = normals[j];
-      n.setArray3fX(meshes[i].normals[j][0]);
-      n.setArray3fY(meshes[i].normals[j][1]);
-      n.setArray3fZ(meshes[i].normals[j][2]);
-    }
-    //}
-
-    // if (has_texcoords) {
-    capnp::List<Array2f>::Builder texcoords = m.initUvs(meshes[i].uvs.size());
-    for (size_t j = 0; j < meshes[i].uvs.size(); ++j) {
-      Array2f::Builder t = texcoords[j];
-      t.setArray2fX(meshes[i].uvs[j][0]);
-      t.setArray2fY(meshes[i].uvs[j][1]);
-    }
-    // }
-
-    // if (has_bones) {
-    capnp::List<Array4u>::Builder bone_indices =
-        m.initBoneIndices(meshes[i].bone_indices.size());
-    for (size_t j = 0; j < meshes[i].bone_indices.size(); ++j) {
-      Array4u::Builder bi = bone_indices[j];
-      bi.setArray4uX(meshes[i].bone_indices[j][0]);
-      bi.setArray4uY(meshes[i].bone_indices[j][1]);
-      bi.setArray4uZ(meshes[i].bone_indices[j][2]);
-      bi.setArray4uW(meshes[i].bone_indices[j][3]);
-    }
-
-    capnp::List<Array4f>::Builder bone_weights =
-        m.initBoneWeights(meshes[i].bone_weights.size());
-    for (size_t j = 0; j < meshes[i].bone_weights.size(); ++j) {
-      Array4f::Builder bw = bone_weights[j];
-      bw.setArray4fX(meshes[i].bone_weights[j][0]);
-      bw.setArray4fY(meshes[i].bone_weights[j][1]);
-      bw.setArray4fZ(meshes[i].bone_weights[j][2]);
-      bw.setArray4fW(meshes[i].bone_weights[j][3]);
-    }
-
-    capnp::List<capnp::Text>::Builder bone_names =
-        m.initBoneNames(meshes[i].bone_names.size());
-    for (size_t j = 0; j < meshes[i].bone_names.size(); ++j) {
-      m.getBoneNames().set(j, meshes[i].bone_names[j]);
-    }
-    // }
+  model temp_model;
+  for (auto m : meshes) {
+    temp_model.meshes.push_back(m);
+  }
+  for (auto m: materials) {
+    temp_model.materials.push_back(m);
   }
 
-  // Create the material buffer in capnproto
-  for (size_t i = 0; i < materials.size(); ++i) {
-    Material::Builder m = materials_output[i];
-    m.setDiffuseTexturePath(materials[i].diffuse_texture_path);
-    m.setNormalsTexturePath(materials[i].normals_texture_path);
-    m.setSpecularTexturePath(materials[i].specular_texture_path);
-  }
-
-  // NOW WE WRITE OUR SERIALIZED MODEL!
-  kj::VectorOutputStream output_stream;
-  // And write our mesage to the output stream
-  capnp::writePackedMessage(output_stream, message);
-  // auto words = capnp::messageToFlatArray(message);
-  // auto bytes = words.asBytes();
-  const auto array = output_stream.getArray();
-  auto iter = array.begin();
-  std::cout << "Message size: " << array.size() << std::endl;
-
-  std::vector<char> buffer;
-  while (iter != array.end()) {
-    buffer.push_back(*iter);
-    ++iter;
-  }
+  msgpack::sbuffer sbuf;
+  msgpack::pack(sbuf, temp_model);
 
   std::ofstream output_file;
   output_file.open(output_pathname + "/model.bin", std::ios::binary);
-  for (unsigned char c : buffer) {
-    output_file.put(c);
+  auto data = sbuf.data();
+  for (size_t i = 0; i < sbuf.size(); ++i) {
+    output_file.put(data[i]);
   }
 
   std::cout << "Writing model file to " << output_pathname + "/model.bin"

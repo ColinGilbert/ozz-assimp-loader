@@ -8,23 +8,17 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#include <fstream>
-#include <iostream>
+#include <boost/filesystem.hpp>
 #include <lemon/list_graph.h>
-#include <set>
-#include <unordered_map>
-#include <vector>
-
+#include <map>
+#include <msgpack.hpp>
 #include <ozz/animation/offline/raw_skeleton.h>
 #include <ozz/base/io/archive.h>
 #include <ozz/base/io/stream.h>
-
-#include <boost/filesystem.hpp>
-
-#include <iostream>
-#include <map>
-#include <memory>
+#include <set>
 #include <string>
+#include <sys/types.h>
+#include <vector>
 
 class loader {
 public:
@@ -49,21 +43,34 @@ public:
     std::vector<std::array<float, 2>> uvs;
     std::vector<std::array<std::string, 4>>
         vert_bone_names; // Used to calculate bone indices and weights
-    std::vector<std::array<size_t, 4>> bone_indices;
+    std::vector<std::array<uint32_t, 4>> bone_indices;
     std::vector<std::array<float, 4>> bone_weights;
     std::vector<uint32_t> indices;
     std::vector<std::string> bone_names;
     unsigned int material_index;
+    MSGPACK_DEFINE(name, translation, scale, dimensions, positions, normals,
+                   uvs, bone_indices, bone_weights, indices, bone_names,
+                   material_index);
   };
 
-  enum texture_type { NONE = 0, DIFFUSE = 1, NORMAL = 2, SPECULAR = 3 };
+  // enum texture_type { NONE = 0, DIFFUSE = 1, NORMAL = 2, SPECULAR = 3 };
+
+  // MSGPACK_ADD_ENUM(loader::texture_type);
 
   struct material {
     std::string name;
     std::string diffuse_texture_path;
     std::string normals_texture_path;
     std::string specular_texture_path;
-    texture_type tex_type;
+    //loader::texture_type tex_type;
+    MSGPACK_DEFINE(name, diffuse_texture_path, normals_texture_path, specular_texture_path);
+  };
+
+
+  struct model {
+    std::vector<mesh> meshes;
+    std::vector<material> materials;
+    MSGPACK_DEFINE(meshes, materials);
   };
 
   class hierarchy {
