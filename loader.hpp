@@ -4,14 +4,18 @@
 
 // TODO: Options via config file
 
+#include "cereal/cereal.hpp"
 #include <array>
 #include <assimp/Importer.hpp>
+#include <assimp/material.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <boost/filesystem.hpp>
+#include <cereal/archives/json.hpp>
+#include <cereal/types/array.hpp>
+#include <cereal/types/vector.hpp>
 #include <lemon/list_graph.h>
 #include <map>
-#include <msgpack.hpp>
 #include <ozz/animation/offline/raw_skeleton.h>
 #include <ozz/base/io/archive.h>
 #include <ozz/base/io/stream.h>
@@ -47,10 +51,15 @@ public:
     std::vector<std::array<float, 4>> bone_weights;
     std::vector<uint32_t> indices;
     std::vector<std::string> bone_names;
-    unsigned int material_index;
-    MSGPACK_DEFINE(name, translation, scale, dimensions, positions, normals,
-                   uvs, bone_indices, bone_weights, indices, bone_names,
-                   material_index);
+    uint32_t material_index;
+    friend class cereal::access;
+    template <class Archive> void serialize(Archive &archive) {
+      archive(CEREAL_NVP(name), CEREAL_NVP(translation), CEREAL_NVP(scale),
+              CEREAL_NVP(dimensions), CEREAL_NVP(rotation),
+              CEREAL_NVP(positions), CEREAL_NVP(normals), CEREAL_NVP(uvs),
+              CEREAL_NVP(bone_indices), CEREAL_NVP(bone_weights), CEREAL_NVP(bone_names),
+              CEREAL_NVP(material_index));
+    }
   };
 
   // enum texture_type { NONE = 0, DIFFUSE = 1, NORMAL = 2, SPECULAR = 3 };
@@ -62,15 +71,23 @@ public:
     std::string diffuse_texture_path;
     std::string normals_texture_path;
     std::string specular_texture_path;
-    //loader::texture_type tex_type;
-    MSGPACK_DEFINE(name, diffuse_texture_path, normals_texture_path, specular_texture_path);
+    // loader::texture_type tex_type;
+    friend class cereal::access;
+    template <class Archive> void serialize(Archive &archive) {
+      archive(CEREAL_NVP(name), CEREAL_NVP(diffuse_texture_path),
+              CEREAL_NVP(normals_texture_path),
+              CEREAL_NVP(specular_texture_path));
+    }
   };
-
 
   struct SerializedModel {
     std::vector<SerializedMesh> meshes;
     std::vector<SerializedMaterial> materials;
-    MSGPACK_DEFINE(meshes, materials);
+    friend class cereal::access;
+
+    template <class Archive> void serialize(Archive &archive) {
+      archive(CEREAL_NVP(meshes), CEREAL_NVP(materials));
+    }
   };
 
   class hierarchy {

@@ -1,4 +1,0 @@
-message Model {
-    repeated Mesh meshes = 1;
-    repeated Material materials = 2;
-}

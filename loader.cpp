@@ -406,6 +406,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
         }
       }
       meshes[mesh_index] = m;
+      bool did_empty = meshes[mesh_index].vert_bone_names.empty();
     }
   }
   // Read in materials
@@ -442,17 +443,18 @@ bool loader::load(const aiScene *scene, const std::string &name) {
     temp_model.materials.push_back(m);
   }
 
-  msgpack::sbuffer sbuf;
-  msgpack::pack(sbuf, temp_model);
 
   std::ofstream output_file;
-  output_file.open(output_pathname + "/model.bin", std::ios::binary);
-  auto data = sbuf.data();
-  for (size_t i = 0; i < sbuf.size(); ++i) {
-    output_file.put(data[i]);
-  }
+  output_file.open(output_pathname + "/model.json");
+  // auto data = sbuf.data();
+  // for (size_t i = 0; i < sbuf.size(); ++i) {
+  //   output_file.put(data[i]);
+  // }
+  cereal::JSONOutputArchive output(output_file); // stream to cout
 
-  std::cout << "Writing model file to " << output_pathname + "/model.bin"
+  output( cereal::make_nvp("3D Model Data",temp_model));
+
+  std::cout << "Writing model file to " << output_pathname + "/model.json"
             << std::endl;
   // std::cout << "Buffer size: " << buffer.size() << std::endl;
 
@@ -607,7 +609,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
       }
 
       output_runtime_anim_filename << "-runtime-anim.ozz";
-      std::cout << "Outputting raw animation to "
+      std::cout << "Outputting runtime animation to "
                 << output_runtime_anim_filename.str() << std::endl;
 
       ozz::io::File output_runtime_anim_file(
