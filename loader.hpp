@@ -57,7 +57,7 @@ public:
       archive(CEREAL_NVP(name), CEREAL_NVP(translation), CEREAL_NVP(scale),
               CEREAL_NVP(dimensions), CEREAL_NVP(rotation),
               CEREAL_NVP(positions), CEREAL_NVP(normals), CEREAL_NVP(uvs),
-              CEREAL_NVP(bone_indices), CEREAL_NVP(bone_weights), CEREAL_NVP(bone_names),
+              CEREAL_NVP(bone_indices), CEREAL_NVP(bone_weights),  CEREAL_NVP(indices), CEREAL_NVP(bone_names),
               CEREAL_NVP(material_index));
     }
   };
