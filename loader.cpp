@@ -254,7 +254,6 @@ bool loader::load(const aiScene *scene, const std::string &name) {
 
     if (has_bones) {
       temp_mesh.vert_bone_names.resize(num_verts);
-      // temp_mesh.bone_names.reserve(num_bones);
       temp_mesh.bone_indices.resize(num_verts);
       temp_mesh.bone_weights.resize(num_verts);
 
@@ -262,8 +261,8 @@ bool loader::load(const aiScene *scene, const std::string &name) {
         aiBone *bone_data = mesh_data->mBones[n];
         std::string temp_bone_name = std::string(bone_data->mName.C_Str());
         // TODO: Remove
-        std::cout << temp_bone_name << " " << temp_mesh.bone_names.size()
-                  << std::endl;
+        // std::cout << temp_bone_name << " " << temp_mesh.bone_names.size()
+        //           << std::endl;
         temp_mesh.bone_names.push_back(temp_bone_name);
 
         // Make sure to keep track of every bone in the scene (in order to
@@ -295,7 +294,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
 
     bone_hierarchy.init(scene, scene_bone_names);
 
-    bone_hierarchy.print_info();
+    //bone_hierarchy.print_info();
 
     ozz::animation::offline::RawSkeleton raw_skel =
         bone_hierarchy.make_raw_skeleton();
@@ -384,25 +383,18 @@ bool loader::load(const aiScene *scene, const std::string &name) {
       std::cout << std::endl;
       for (size_t vert_index = 0; vert_index < m.positions.size();
            ++vert_index) {
-        // mesh_vertex v = m.vertices[vert_index];
-        //if (m.vert_bone_names.size() == m.bone_indices.size() ==
-        //    m.positions.size()) {
-          for (size_t i = 0; i < m.vert_bone_names[vert_index].size(); ++i) {
-            std::string s = m.vert_bone_names[vert_index][i];
-            if (!s.empty()) {
-              auto it = joint_indices.find(s);
-              if (it != joint_indices.end()) {
-                m.bone_indices[vert_index][i] = joint_indices.find(s)->second;
-                // std::cout << "Found index " << v.bone_indices[i]
-                //           << " for bone name " << v.bone_names[i] <<
-                //           std::endl;
-              } else {
-                std::cout << "ERROR! Could not find bone index for " << s
-                          << " in joint indices map!!!" << std::endl;
-                return false;
-              }
+        for (size_t i = 0; i < m.vert_bone_names[vert_index].size(); ++i) {
+          std::string s = m.vert_bone_names[vert_index][i];
+          if (!s.empty()) {
+            auto it = joint_indices.find(s);
+            if (it != joint_indices.end()) {
+              m.bone_indices[vert_index][i] = joint_indices.find(s)->second;
+            } else {
+              std::cout << "ERROR! Could not find bone index for " << s
+                        << " in joint indices map!!!" << std::endl;
+              return false;
             }
-         // }
+          }
         }
       }
       meshes[mesh_index] = m;
@@ -439,10 +431,9 @@ bool loader::load(const aiScene *scene, const std::string &name) {
   for (auto m : meshes) {
     temp_model.meshes.push_back(m);
   }
-  for (auto m: materials) {
+  for (auto m : materials) {
     temp_model.materials.push_back(m);
   }
-
 
   std::ofstream output_file;
   output_file.open(output_pathname + "/model.json");
@@ -452,7 +443,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
   // }
   cereal::JSONOutputArchive output(output_file); // stream to cout
 
-  output( cereal::make_nvp("model",temp_model));
+  output(cereal::make_nvp("model", temp_model));
 
   std::cout << "Writing model file to " << output_pathname + "/model.json"
             << std::endl;
@@ -471,16 +462,14 @@ bool loader::load(const aiScene *scene, const std::string &name) {
       double ticks_per_sec = anim->mTicksPerSecond;
       size_t num_unfiltered_channels = anim->mNumChannels;
 
-      if (ticks_per_sec < 0.0001) {
-        ticks_per_sec = 1.0;
-      }
+      ticks_per_sec = 1000.0;
 
       std::string anim_name = std::string(anim->mName.C_Str());
       std::cout << "Assimp animation " << anim_num + 1 << " out of "
                 << num_anims << ". Name: " << anim_name << ". Ticks = " << ticks
                 << ". Ticks per second = " << ticks_per_sec
                 << ". Number of (unfiltered) channels = "
-                << num_unfiltered_channels << std::endl;
+                << num_unfiltered_channels ;
 
       ozz::animation::offline::RawAnimation raw_animation;
       raw_animation.duration = ticks * ticks_per_sec;
@@ -507,6 +496,9 @@ bool loader::load(const aiScene *scene, const std::string &name) {
           continue;
         }
       }
+
+      std::cout << ", Num filtered channels = " << valid_channels.size() << std::endl;
+
 
       raw_animation.tracks.resize(num_joints);
       for (std::tuple<size_t, aiNodeAnim *> chan : valid_channels) {

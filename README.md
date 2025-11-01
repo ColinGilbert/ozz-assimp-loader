@@ -1,6 +1,6 @@
 Assimp can be a real pain to use with skeletal information.
 
-Therefore, I wrote a simple utility that loads a file with Assimp, uses Lemon Graph Library (https://lemon.cs.elte.hu/trac/lemon) to parse it, and exports the info to ozz-animation's own binary format. Furthermore, it uses Cereral to create a JSON of the model for youe game engine, all neatly bundled up and ready to use.
+Therefore, I wrote a simple utility that loads a file with Assimp, uses Lemon Graph Library (https://lemon.cs.elte.hu/trac/lemon) to parse it, and exports the info to ozz-animation's own binary format. Furthermore, it uses Cereral to create a JSON of the model for your game engine, all neatly bundled up and ready to use.
 
 To build the example (*nix):
 ```
@@ -13,7 +13,7 @@ cmake ..
 
 To run the Assimp to ozz importer, run:
 ```
-./mesh_importer seymour.dae
+./model_importer CesiumMan.gltf
 ```
 It creates a directory called "output" in its local directory and spits out all necessary files.
 
