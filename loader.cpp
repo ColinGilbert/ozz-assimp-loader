@@ -452,7 +452,7 @@ bool loader::load(const aiScene *scene, const std::string &name) {
   // }
   cereal::JSONOutputArchive output(output_file); // stream to cout
 
-  output( cereal::make_nvp("3D Model Data",temp_model));
+  output( cereal::make_nvp("model",temp_model));
 
   std::cout << "Writing model file to " << output_pathname + "/model.json"
             << std::endl;
